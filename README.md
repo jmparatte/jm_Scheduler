@@ -1,8 +1,6 @@
-# Scheduler Library for Arduino
+# Scheduler Arduino Library
 
-jm_Scheduler
-
-2016-07-08 Initial commit
+2016-07-08: Initial commit
 
 ### Example
 
