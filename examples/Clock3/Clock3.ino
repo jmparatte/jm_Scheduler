@@ -75,7 +75,7 @@ void clock_display()
 
 jm_Scheduler clock_scheduler;
 
-void clock_coroutine()
+void clock_routine()
 {
 	if (!led_state())
 	{
@@ -107,7 +107,7 @@ void setup()
 
 	led_init();
 
-	clock_scheduler.start(clock_coroutine); // Start routine immediately, interval will be set later.
+	clock_scheduler.start(clock_routine); // Start routine immediately, interval will be set later.
 }
 
 void loop()

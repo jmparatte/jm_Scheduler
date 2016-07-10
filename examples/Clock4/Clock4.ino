@@ -75,9 +75,9 @@ void clock_display()
 
 jm_Scheduler clock_scheduler;
 
-void clock_coroutine_led_off();
+void clock_routine_led_off();
 
-void clock_coroutine_led_on()
+void clock_routine_led_on()
 {
 	led_on(); // LED ON, pulse LED every second
 
@@ -85,14 +85,14 @@ void clock_coroutine_led_on()
 
 	clock_inc();
 
-	clock_scheduler.rearm( clock_coroutine_led_off, 20*1000 ); // 20ms
+	clock_scheduler.rearm( clock_routine_led_off, 20*1000 ); // 20ms
 }
 
-void clock_coroutine_led_off()
+void clock_routine_led_off()
 {
 	led_off(); // LED OFF
 
-	clock_scheduler.rearm( clock_coroutine_led_on, 1L*1000*1000 - 20*1000 ); // 1s - 20ms
+	clock_scheduler.rearm( clock_routine_led_on, 1L*1000*1000 - 20*1000 ); // 1s - 20ms
 }
 
 //------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ void setup()
 
 	led_init();
 
-	clock_scheduler.start(clock_coroutine_led_on); // Start routine immediately, interval will be set later.
+	clock_scheduler.start(clock_routine_led_on); // Start routine immediately, interval will be set later.
 }
 
 void loop()

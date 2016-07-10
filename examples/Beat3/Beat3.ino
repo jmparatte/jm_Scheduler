@@ -42,7 +42,7 @@ jm_Scheduler beat_scheduler;
 bool beat_state = false;
 timestamp_t beat_ival = 0;
 
-void beat_coroutine()
+void beat_routine()
 {
 	if (!beat_state)
 	{
@@ -79,7 +79,7 @@ void setup()
 
 	led_init();
 
-	beat_scheduler.start(beat_coroutine, 10*TIMESTAMP_1MS); // 10ms
+	beat_scheduler.start(beat_routine, 10*TIMESTAMP_1MS); // 10ms
 }
 
 void loop()

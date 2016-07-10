@@ -77,7 +77,7 @@ void clock_display()
 
 jm_Scheduler clock_scheduler;
 
-void clock_coroutine()
+void clock_routine()
 {
 	if (clock_t50 == 0) led_on(); // LED ON, pulse 20ms every 1s
 	if (clock_t50 == 1) led_off(); // LED OFF.
@@ -109,7 +109,7 @@ void setup()
 
 	led_init();
 
-	clock_scheduler.start(clock_coroutine, 20*1000); // Start routine immediately and repeat it every 20ms => 50hz.
+	clock_scheduler.start(clock_routine, 20*1000); // Start routine immediately and repeat it every 20ms => 50hz.
 }
 
 void loop()
