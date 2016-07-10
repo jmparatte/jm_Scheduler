@@ -4,13 +4,13 @@
 
 ### Example
 
-	// This example start a coroutine that print a char every second
+	// This example schedules a routine every second
 	
 	#include <jm_Scheduler.h>
   
 	jm_Scheduler scheduler;
 	
-	void coroutine()
+	void routine()
 	{
 		Serial.print('.');
 	}
@@ -19,7 +19,7 @@
 	{
 		Serial.begin(9600);
 		
-		scheduler.start(coroutine, TIMESTAMP_1SEC); // Start immediatly coroutine() and repeat it every second
+		scheduler.start(routine, TIMESTAMP_1SEC); // Start immediatly routine() and repeat it every second
 	}
   
 	void loop(void)

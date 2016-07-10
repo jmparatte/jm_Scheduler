@@ -2,7 +2,7 @@
 #define __PROG__ "Wakeup1"
 
 /*
-	Wakeup1.ino demonstrate the possible interaction of interrupt with scheduled coroutine.
+	Wakeup1.ino demonstrate the possible interaction of interrupt with scheduled routine.
 
 	Wakeup1.ino implements an 10s timeout to receive an interrupt.
 	The interrupt is activated when the Arduino UNO pin 2 is shortcut to GND.
@@ -166,7 +166,7 @@ void wakeup_coroutine_stop()
 		Serial.println( F(" wakeup(s)") ); // print count of wakeups
 	}
 
-	wakeup_scheduler.stop(); // stop coroutine
+	wakeup_scheduler.stop(); // stop routine
 }
 
 void wakeup_interrupt()
@@ -191,7 +191,7 @@ void setup()
 
 	led_init();
 
-	clock_scheduler.start(clock_coroutine, TIMESTAMP_1SEC); // Start coroutine immediately and repeat it every 1s.
+	clock_scheduler.start(clock_coroutine, TIMESTAMP_1SEC); // Start routine immediately and repeat it every 1s.
 
 	pinMode(WAKEUP_PIN, INPUT_PULLUP); // Arduino UNO pin 2 is int.0
 	while (!digitalRead(WAKEUP_PIN)); // wait for pullup

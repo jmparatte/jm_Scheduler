@@ -29,6 +29,14 @@
 
 //------------------------------------------------------------------------------
 
+#ifndef assert
+#define assert(v) while(!v){} // default assert function
+#endif
+
+#ifndef voidfuncptr_t
+typedef void (*voidfuncptr_t)(void); // void function pointer typedef
+#endif
+
 #ifdef ARDUINO
 #include <Arduino.h>
 typedef uint32_t timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t timestamp_t;
@@ -54,14 +62,6 @@ typedef uint32_t timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t timesta
 #define TIMESTAMP_1MIN	(60*TIMESTAMP_1SEC)		// [1 minute]
 #define TIMESTAMP_1HOUR	(60*TIMESTAMP_1MIN)		// [1 hour]
 
-#ifndef assert
-#define assert(v) while(!v){} // default assert function
-#endif
-
-#ifndef func_p_t
-typedef void (*func_p_t)(void); // function pointer typedef
-#endif
-
 //------------------------------------------------------------------------------
 
 #define jm_Scheduler_time_read() us_ticker_read()
@@ -76,23 +76,23 @@ class jm_Scheduler
 {
 public:
 
-	static timestamp_t tref;		// current scheduler time
-	static jm_Scheduler *first;		// first scheduled coroutine chain
-	static jm_Scheduler *crnt;		// current running coroutine
+	static timestamp_t tref;			// current scheduler time
+	static jm_Scheduler *first;			// first scheduled routine chain
+	static jm_Scheduler *crnt;			// current running routine
 
-	static jm_Scheduler *wakeup_first; // first wakeup coroutine chain
+	static jm_Scheduler *wakeup_first;	// first wakeup routine chain
 
 public:
 
-	func_p_t func;					// address of coroutine function
-	timestamp_t time;				// time of scheduled execution
-	timestamp_t ival;				// interval of cyclic execution
+	voidfuncptr_t func;					// address of routine function
+	timestamp_t time;					// time of scheduled execution
+	timestamp_t ival;					// interval of cyclic execution
 
-	jm_Scheduler *next;				// next in coroutine chain
+	jm_Scheduler *next;					// next in routine chain
 
-	timestamp_t wakeup_time;		// time of first wakeup (may be repeated)
-	jm_Scheduler *wakeup_next;		// next coroutine in wakeup coroutine chain
-	int wakeup_count;				// count of repeated wakeup
+	timestamp_t wakeup_time;			// time of first wakeup (may be repeated)
+	jm_Scheduler *wakeup_next;			// next routine in wakeup routine chain
+	int wakeup_count;					// count of repeated wakeup
 
 	void chain_insert();
 	void chain_remove();
@@ -113,28 +113,28 @@ public:
 	static void time_cycle();
 	static void cycle();
 
-	// start coroutine immediately
-	void start(func_p_t func);
+	// start routine immediately
+	void start(voidfuncptr_t func);
 
-	// start coroutine immediately and repeat it at fixed intervals
-	void start(func_p_t func, timestamp_t ival);
+	// start routine immediately and repeat it at fixed interval
+	void start(voidfuncptr_t func, timestamp_t ival);
 
-	// start coroutine on time and repeat it at fixed intervals
-	void start(func_p_t func, timestamp_t time, timestamp_t ival);
+	// start routine on time and repeat it at fixed interval
+	void start(voidfuncptr_t func, timestamp_t time, timestamp_t ival);
 
-	// stop coroutine, current or scheduled, remove from chain
+	// stop routine, current or scheduled, remove it from chain
 	void stop();
 
-	// rearm current coroutine and set or reset interval
+	// rearm current routine and set or reset interval
 	void rearm(timestamp_t ival);
 
-	// rearm current coroutine, change coroutine function and set or reset interval
-	void rearm(void (*func)(), timestamp_t ival);
+	// rearm current routine, change routine function and set or reset interval
+	void rearm(voidfuncptr_t func, timestamp_t ival);
 
-	// wakeup a scheduled coroutine (maybe repeated)
+	// wakeup a scheduled routine (maybe repeated)
 	void wakeup();
 
-	// read wakeup count, reset it and remove coroutine from wakeup chain
+	// read wakeup count, reset it and remove routine from wakeup chain
 	int wakeup_read();
 };
 

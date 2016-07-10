@@ -98,7 +98,7 @@ void setup()
 
 	led_init();
 
-	clock_scheduler.start(clock_coroutine, 1L*1000*1000); // Start coroutine immediately and repeat it every 1s.
+	clock_scheduler.start(clock_coroutine, 1L*1000*1000); // Start routine immediately and repeat it every 1s.
 }
 
 void loop()

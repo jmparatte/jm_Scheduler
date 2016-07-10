@@ -29,10 +29,10 @@
 //------------------------------------------------------------------------------
 
 timestamp_t jm_Scheduler::tref = timestamp_read();	// current scheduler time
-jm_Scheduler *jm_Scheduler::first = 0;				// first scheduled coroutine chain
-jm_Scheduler *jm_Scheduler::crnt = 0;				// current running coroutine
+jm_Scheduler *jm_Scheduler::first = 0;				// first scheduled routine chain
+jm_Scheduler *jm_Scheduler::crnt = 0;				// current running routine
 
-jm_Scheduler *jm_Scheduler::wakeup_first = 0;		// first wakeup coroutine chain
+jm_Scheduler *jm_Scheduler::wakeup_first = 0;		// first wakeup routine chain
 
 void jm_Scheduler::chain_insert()
 {
@@ -124,9 +124,9 @@ jm_Scheduler::jm_Scheduler()
 
 	this->next = 0;
 
-	this->wakeup_time = 0;	// time of first wakeup coroutine chain
-	this->wakeup_next = 0;	// next in wakeup coroutine chain
-	this->wakeup_count = 0;	// count of repeated interrupt coroutine
+	this->wakeup_time = 0;	// time of first wakeup routine chain
+	this->wakeup_next = 0;	// next in wakeup routine chain
+	this->wakeup_count = 0;	// count of repeated interrupt routine
 
 	this->started = false;
 	this->stopping = false;
@@ -203,10 +203,10 @@ void jm_Scheduler::cycle()
 		jm_Scheduler::wakeup_first = wakeup_first->wakeup_next;
 		wakeup_first->wakeup_next = 0;
 
-		// remove wakeuped coroutine from coroutine chain
+		// remove wakeuped routine from routine chain
 		jm_Scheduler::wakeup_first->chain_remove();
 
-		// insert wakeuped coroutine at first coroutine
+		// insert wakeuped routine at first routine
 		wakeup_first->next = jm_Scheduler::first;
 		jm_Scheduler::first = wakeup_first;
 
@@ -226,11 +226,11 @@ void jm_Scheduler::cycle()
 	// set crnt with first
 	jm_Scheduler::crnt = jm_Scheduler::first;
 
-	// remove first from chain coroutine
+	// remove first from chain routine
 	jm_Scheduler::first = jm_Scheduler::crnt->next;
 	jm_Scheduler::crnt->next = 0;
 
-	jm_Scheduler::crnt->func(); // call coroutine function
+	jm_Scheduler::crnt->func(); // call routine function
 
 	if (jm_Scheduler::crnt->stopping || jm_Scheduler::crnt->ival == 0) // stopping or not rearmed ?
 	{
@@ -250,8 +250,8 @@ void jm_Scheduler::cycle()
 }
 }
 
-// start coroutine immediately
-void jm_Scheduler::start(func_p_t func)
+// start routine immediately
+void jm_Scheduler::start(voidfuncptr_t func)
 {
 	this->func = func;
 	this->time = jm_Scheduler_time_read();
@@ -260,15 +260,15 @@ void jm_Scheduler::start(func_p_t func)
 	this->chain_insert();
 
 	wakeup_time = 0;		// time of first wakeup (may be repeated)
-	wakeup_next = 0;		// next coroutine in wakeup coroutine chain
+	wakeup_next = 0;		// next routine in wakeup routine chain
 	wakeup_count = 0;		// count of repeated wakeup
 
 	this->started = true;
 	this->stopping = false;
 }
 
-// start coroutine immediately and repeat it at fixed intervals
-void jm_Scheduler::start(func_p_t func, timestamp_t ival)
+// start routine immediately and repeat it at fixed intervals
+void jm_Scheduler::start(voidfuncptr_t func, timestamp_t ival)
 {
 	this->func = func;
 	this->time = jm_Scheduler_time_read();
@@ -277,15 +277,15 @@ void jm_Scheduler::start(func_p_t func, timestamp_t ival)
 	this->chain_insert();
 
 	wakeup_time = 0;		// time of first wakeup (may be repeated)
-	wakeup_next = 0;		// next coroutine in wakeup coroutine chain
+	wakeup_next = 0;		// next routine in wakeup routine chain
 	wakeup_count = 0;		// count of repeated wakeup
 
 	this->started = true;
 	this->stopping = false;
 }
 
-// start coroutine on time and repeat it at fixed intervals
-void jm_Scheduler::start(func_p_t func, timestamp_t time, timestamp_t ival)
+// start routine on time and repeat it at fixed intervals
+void jm_Scheduler::start(voidfuncptr_t func, timestamp_t time, timestamp_t ival)
 {
 	this->func = func;
 	this->time = time;
@@ -294,19 +294,19 @@ void jm_Scheduler::start(func_p_t func, timestamp_t time, timestamp_t ival)
 	this->chain_insert();
 
 	wakeup_time = 0;		// time of first wakeup (may be repeated)
-	wakeup_next = 0;		// next coroutine in wakeup coroutine chain
+	wakeup_next = 0;		// next routine in wakeup routine chain
 	wakeup_count = 0;		// count of repeated wakeup
 
 	this->started = true;
 	this->stopping = false;
 }
 
-// stop coroutine, current or scheduled, remove from chain
+// stop routine, current or scheduled, remove from chain
 void jm_Scheduler::stop()
 {
 	if (!this->started || this->stopping) return;
 
-	if (this == this->crnt) // coroutine running ?
+	if (this == this->crnt) // routine running ?
 	{
 //		this->started = false;
 		this->stopping = true;
@@ -320,20 +320,20 @@ void jm_Scheduler::stop()
 	}
 }
 
-// rearm current coroutine and set or reset interval
+// rearm current routine and set or reset interval
 void jm_Scheduler::rearm(timestamp_t ival)
 {
 	this->ival = ival;
 }
 
-// rearm current coroutine, change coroutine function and set or reset interval
-void jm_Scheduler::rearm(void (*func)(), timestamp_t ival)
+// rearm current routine, change routine function and set or reset interval
+void jm_Scheduler::rearm(voidfuncptr_t func, timestamp_t ival)
 {
 	this->func = func;
 	this->ival = ival;
 }
 
-// wakeup a scheduled coroutine (maybe repeated)
+// wakeup a scheduled routine (maybe repeated)
 void jm_Scheduler::wakeup()
 {
 	if (!this->started) return;
@@ -350,7 +350,7 @@ void jm_Scheduler::wakeup()
 	this->wakeup_count++; // inc wakeup_count
 }
 
-// read wake_count, reset it and remove coroutine from wakeup chain
+// read wake_count, reset it and remove routine from wakeup chain
 int jm_Scheduler::wakeup_read()
 {
 	int count = 0;

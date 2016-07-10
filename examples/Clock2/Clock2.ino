@@ -109,7 +109,7 @@ void setup()
 
 	led_init();
 
-	clock_scheduler.start(clock_coroutine, 20*1000); // Start coroutine immediately and repeat it every 20ms => 50hz.
+	clock_scheduler.start(clock_coroutine, 20*1000); // Start routine immediately and repeat it every 20ms => 50hz.
 }
 
 void loop()

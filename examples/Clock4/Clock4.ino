@@ -107,7 +107,7 @@ void setup()
 
 	led_init();
 
-	clock_scheduler.start(clock_coroutine_led_on); // Start coroutine immediately, interval will be set later.
+	clock_scheduler.start(clock_coroutine_led_on); // Start routine immediately, interval will be set later.
 }
 
 void loop()
