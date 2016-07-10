@@ -1,4 +1,4 @@
-# Scheduler Arduino Library
+# Scheduler Library for Arduino, Energia, MBED...
 
 2016-07-08: Initial commit
 
