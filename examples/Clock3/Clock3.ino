@@ -85,13 +85,13 @@ void clock_routine()
 
 		clock_inc();
 
-		clock_scheduler.rearm( 20*1000 ); // 20ms
+		clock_scheduler.rearm( 20*TIMESTAMP_1MS ); // 20ms
 	}
 	else
 	{
 		led_off(); // LED OFF
 
-		clock_scheduler.rearm( 1L*1000*1000 - 20*1000 ); // 1s - 20ms
+		clock_scheduler.rearm( TIMESTAMP_1SEC - 20*TIMESTAMP_1MS ); // 1s - 20ms
 	}
 }
 

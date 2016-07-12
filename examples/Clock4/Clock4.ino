@@ -85,14 +85,14 @@ void clock_routine_led_on()
 
 	clock_inc();
 
-	clock_scheduler.rearm( clock_routine_led_off, 20*1000 ); // 20ms
+	clock_scheduler.rearm( clock_routine_led_off, 20*TIMESTAMP_1MS ); // 20ms
 }
 
 void clock_routine_led_off()
 {
 	led_off(); // LED OFF
 
-	clock_scheduler.rearm( clock_routine_led_on, 1L*1000*1000 - 20*1000 ); // 1s - 20ms
+	clock_scheduler.rearm( clock_routine_led_on, TIMESTAMP_1SEC - 20*TIMESTAMP_1MS ); // 1s - 20ms
 }
 
 //------------------------------------------------------------------------------

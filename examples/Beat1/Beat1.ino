@@ -62,8 +62,8 @@ void setup()
 
 	led_init();
 
-	beat_scheduler_led_toggle1.start(beat_routine_led_toggle2, 10000L); // 10ms
-	beat_scheduler_led_toggle2.start(beat_routine_led_toggle1, 10100L); // 10.1ms
+	beat_scheduler_led_toggle1.start(beat_routine_led_toggle1, 10000L); // 10ms
+	beat_scheduler_led_toggle2.start(beat_routine_led_toggle2, 10100L); // 10.1ms
 }
 
 void loop()
