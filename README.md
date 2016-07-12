@@ -4,7 +4,7 @@
 
 ### Concepts
 
-**jm_Scheduler** schedules repeated and intervalled routines like the JavaScript **setInterval()** function does, but with somes differences:
+**jm_Scheduler** schedules repeated and intervaled routines like the JavaScript **setInterval()** function does, but with some differences:
 
 - By default, **jm_Scheduler** starts immediately the routine and repeats it periodically.
 - The 1st execution can be differed.
@@ -30,7 +30,7 @@
 	{
 		Serial.begin(9600);
 		
-		scheduler.start(routine, TIMESTAMP_1SEC); // Start immediatly routine() and repeat it every second
+		scheduler.start(routine, TIMESTAMP_1SEC); // Start immediately routine() and repeat it every second
 	}
   
 	void loop(void)
@@ -40,9 +40,9 @@
 
 ### Study Plan
 
-- Begin with example **Clock1.ino**. This example demonstrates the advantages to start immediatly a time display routine and periodically repeat it.
+- Begin with example **Clock1.ino**. This example demonstrates the advantages to start immediately a time display routine and periodically repeat it.
 - Follow with examples **Clock2.ino** and **Clock3.ino** which present other timing ways.
-- **Clock4.ino** example presents a usefull **jm_Scheduler** technic: changing dynamically the routine to execute.
+- **Clock4.ino** example presents a usefully **jm_Scheduler** technic: changing dynamically the routine to execute.
 - **Beat1.ino** and **Beat2.ino** examples present interaction between 2 scheduling routines.
 - **Wakeup1.ino** example demonstrates the possible interaction between an interrupt and a scheduled routine, implementing a timeout.
 
