@@ -8,7 +8,7 @@
 
 - By default, **jm_Scheduler** starts immediately the routine and repeats it periodically.
 - The 1st execution can be differed.
-- The repeated executions can be discarded.
+- The repeated executions can be ignored.
 - The interval between executions can be dynamically modified.
 - The execution can be stopped and later restarted.
 - The executed routine can be dynamically changed.
@@ -40,8 +40,8 @@
 
 ### Study Plan
 
-- Begin by example **Clock1.ino**. This example demonstrates the advantages to start immediatly a time display routine and periodically repeat it.
-- Follow with examples **Clock2.ino** and **Clock3.ino** which present other ways.
+- Begin with example **Clock1.ino**. This example demonstrates the advantages to start immediatly a time display routine and periodically repeat it.
+- Follow with examples **Clock2.ino** and **Clock3.ino** which present other timing ways.
 - **Clock4.ino** example presents a usefull **jm_Scheduler** technic: changing dynamically the routine to execute.
 - **Beat1.ino** and **Beat2.ino** examples present interaction between 2 scheduling routines.
 - **Wakeup1.ino** example demonstrates the possible interaction between an interrupt and a scheduled routine, implementing a timeout.
