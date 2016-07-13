@@ -54,6 +54,8 @@ typedef uint32_t timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t timesta
 //    30'000'000 =    1C9'C380 = [30s]
 // 4'264'951'808 =   FE36'0000 = 1'0000'0000 - 1CA'0000 = [1h + 11m + 4s + 951ms + 808us]
 //    30'015'488 =    1CA'0000 = [30s + 15ms + 488us]
+
+#define TIMESTAMP_DEAD (0x01CA0000) // dead time [30s + 15ms + 488us]
 #define TIMESTAMP_TMAX (0xFE35FFFF) // [1h + 11m + 4s + 951ms + 808us - 1]
 
 #define TIMESTAMP_1US	(1UL)					// [1us]

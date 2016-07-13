@@ -10,6 +10,14 @@ Email: jean-marc@paratte.ch
 
 -->
 
+<style>
+
+.markdown-body pre {
+	background-color: #e0e0e0;
+}
+
+</style>
+
 # jm_Scheduler - A Scheduler Library for Arduino
 
 2016-07-08: Initial commit
@@ -85,3 +93,24 @@ Here are some hacks that can be implemented by modifying the file **jm_Scheduler
 - Another choice for the _timestamp_ resolution could be the _[ms]_ read from the Arduino function **millis()**. 
 - Gain speed during _timestamp_ comparison by shortening the size to 16bit.
 - Obtain very long periodicity by implementing a 64bit _timestamp_.
+
+### Timestamp declaration and constants
+
+```C
+typedef uint32_t timestamp_t;
+
+#define timestamp_read() ((timestamp_t)micros())
+
+#define TIMESTAMP_DEAD (0x01CA0000) // dead time [30s + 15ms + 488us]
+#define TIMESTAMP_TMAX (0xFE35FFFF) // [1h + 11m + 4s + 951ms + 808us - 1]
+
+#define TIMESTAMP_1US	(1UL)					// [1us]
+#define TIMESTAMP_1MS	(1000*TIMESTAMP_1US)	// [1ms]
+#define TIMESTAMP_1SEC	(1000*TIMESTAMP_1MS)	// [1s]
+#define TIMESTAMP_1MIN	(60*TIMESTAMP_1SEC)		// [1 minute]
+#define TIMESTAMP_1HOUR	(60*TIMESTAMP_1MIN)		// [1 hour]
+```
+
+All _timestamp_ variables are of type `timestamp_t`.
+
+The _timestamp_ can be read with function `timestamp_read()`.
