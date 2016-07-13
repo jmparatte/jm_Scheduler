@@ -9,6 +9,7 @@ Author: Jean-Marc Paratte
 Email: jean-marc@paratte.ch
 
 -->
+
 <img src="http://jean-marc.paratte.ch/wp-content/uploads/2013/01/diduino1_960x96.jpg" class="header-image" alt="jmP" height="96" width="960">
 
 # jm_Scheduler - A Scheduler Library for Arduino
@@ -17,7 +18,7 @@ Email: jean-marc@paratte.ch
 
 ### Concepts
 
-**jm_Scheduler** schedules repeated and intervaled routines like the JavaScript **setInterval()** function does, but with some differences:
+**jm_Scheduler** schedules repeated and intervaled routines like the JavaScript `setInterval()` function does, but with some differences:
 
 - By default, **jm_Scheduler** starts immediately the routine and repeats it periodically.
 - The 1st execution can be differed.
