@@ -8,12 +8,12 @@
 
 - By default, **jm_Scheduler** starts immediately the routine and repeats it periodically.
 - The 1st execution can be differed.
-- The repeated executions can be ignored.
+- The repeated executions can be voided.
 - The interval between executions can be dynamically modified.
 - The execution can be stopped and later restarted.
 - The executed routine can be dynamically changed.
 
-### Example
+### Basic Example
 
 	// This example schedules a routine every second
 	
