@@ -1,3 +1,11 @@
+<!--
+2016-07-13: In progress...
+2016-07-08: Initial commit.
+Licence: LGPL v3
+Author: Jean-Marc Paratte
+Email: jean-marc@paratte.ch
+-->
+
 # jm_Scheduler - A Scheduler Library for Arduino
 
 2016-07-08: Initial commit
