@@ -12,7 +12,8 @@ Email: jean-marc@paratte.ch
 
 <style>
 
-.markdown-body pre {
+.markdown-body pre,
+.markdown-body code {
 	background-color: #e0e0e0;
 }
 
