@@ -60,10 +60,10 @@ Email: jean-marc@paratte.ch
 
 ### Timestamp
 
-The _timestamp_ is read from the Arduino function **micros()**.
-By design, the **micros()** function of Arduino UNO and Leonardo running at 16MHz returns a _[us]_ _timestamp_ with a resolution of _[4us]_.
+The _timestamp_ is read from the Arduino function `micros()`.
+By design, the `micros()` function of Arduino UNO and Leonardo running at 16MHz returns a _[us]_ _timestamp_ with a resolution of _[4us]_.
 
-**micros()** declaration is:
+`micros()` declaration is:
 
 ```C
 unsigned long micros()
@@ -82,7 +82,7 @@ Look next section for answers and tricks.
 
 Here are some hacks that can be implemented by modifying the file **jm_Scheduler.h**.
 
-- Another choice for the _timestamp_ resolution could be the _[ms]_ read from the Arduino function **millis()**. 
+- Another choice for the _timestamp_ resolution could be the _[ms]_ read from the Arduino function `millis()`. 
 - Gain speed during _timestamp_ comparison by shortening the size to 16bit.
 - Obtain very long periodicity by implementing a 64bit _timestamp_.
 
@@ -93,7 +93,7 @@ typedef uint32_t timestamp_t;
 
 #define timestamp_read() ((timestamp_t)micros())
 
-#define TIMESTAMP_DEAD (0x01CA0000) // dead time [30s + 15ms + 488us]
+#define TIMESTAMP_DEAD (0x01CA0000) // routine dead time [30s + 15ms + 488us]
 #define TIMESTAMP_TMAX (0xFE35FFFF) // [1h + 11m + 4s + 951ms + 808us - 1]
 
 #define TIMESTAMP_1US	(1UL)					// [1us]
@@ -103,6 +103,14 @@ typedef uint32_t timestamp_t;
 #define TIMESTAMP_1HOUR	(60*TIMESTAMP_1MIN)		// [1 hour]
 ```
 
-All _timestamp_ variables are of type `timestamp_t`.
+> `timestamp_t` defines the type of all _timestamp_ values.
 
-The _timestamp_ can be read with function `timestamp_read()`.
+> `timestamp_read()` returns the instantaneous _timestamp_.
+This function can also be used by interrupt routines to _timestamp_ they data.
+
+> `TIMESTAMP_DEAD` is the maximum allowed execution time of a routine to guarantee right scheduling.
+If the routine doesn't end before, the scheduler could miss very long scheduling (see next).
+
+> `TIMESTAMP_TMAX` is the maximum allowed scheduling time of a routine.
+In practice, don't use _timestamp_ values greater than 1 hour.
+
