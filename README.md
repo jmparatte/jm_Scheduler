@@ -1,9 +1,13 @@
 <!--
+
 2016-07-13: In progress...
 2016-07-08: Initial commit.
+
 Licence: LGPL v3
+
 Author: Jean-Marc Paratte
 Email: jean-marc@paratte.ch
+
 -->
 
 # jm_Scheduler - A Scheduler Library for Arduino
@@ -76,8 +80,8 @@ Look next section for answers and tricks.
 
 ### Changing of Timestamp
 
-Here are some hacks that can be easily implemented by modifying the file **jm_Scheduler.h**.
+Here are some hacks that can be implemented by modifying the file **jm_Scheduler.h**.
 
-- Another choice for the _timestamp_ resolution could be the _[ms]_ easily read from the Arduino function **millis()**. 
+- Another choice for the _timestamp_ resolution could be the _[ms]_ read from the Arduino function **millis()**. 
 - Gain speed during _timestamp_ comparison by shortening the size to 16bit.
 - Obtain very long periodicity by implementing a 64bit _timestamp_.
