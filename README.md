@@ -11,17 +11,14 @@ Email: jean-marc@paratte.ch
 -->
 
 <style>
-
 /*media all*/
 .markdown-body .highlight pre, .markdown-body pre {
 	background-color: #e0e0e0;
 }
-
 /*media all*/
 .markdown-body code, .markdown-body tt {
     background-color: rgba(0,0,0,0.1);
 }
-
 </style>
 
 # jm_Scheduler - A Scheduler Library for Arduino
