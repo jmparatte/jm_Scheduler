@@ -52,11 +52,15 @@ Email: jean-marc@paratte.ch
 
 ### Study Plan
 
-- Begin with example **Clock1.ino**. This example demonstrates the advantages to start immediately a time display routine and periodically repeat it.
-- Follow with examples **Clock2.ino** and **Clock3.ino** which present other timing ways.
-- **Clock4.ino** example presents a usefully **jm_Scheduler** technic: changing dynamically the routine to execute.
-- **Beat1.ino** and **Beat2.ino** examples present interaction between 2 scheduling routines.
-- **Wakeup1.ino** example demonstrates the possible interaction between an interrupt and a scheduled routine, implementing a timeout.
+> Begin with example **Clock1.ino**. This example demonstrates the advantages to start immediately a time display routine and periodically repeat it.
+
+> Follow with examples **Clock2.ino** and **Clock3.ino** which present other timing ways.
+
+> **Clock4.ino** example presents a usefully **jm_Scheduler** technic: changing dynamically the routine to execute.
+
+> **Beat1.ino** and **Beat2.ino** examples present interaction between 2 scheduling routines.
+
+> **Wakeup1.ino** example demonstrates the possible interaction between an interrupt and a scheduled routine, implementing a timeout.
 
 ### Timestamp
 
