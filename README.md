@@ -12,9 +12,11 @@ Email: jean-marc@paratte.ch
 
 <img src="http://jean-marc.paratte.ch/wp-content/uploads/2013/01/diduino1_960x96.jpg" class="header-image" alt="jmP" height="96" width="960">
 
+
 # jm_Scheduler - A Scheduler Library for Arduino
 
 2016-07-08: Initial commit
+
 
 ### Concept
 
@@ -39,6 +41,7 @@ The rules to _yield_ and _resume_ are:
 - _resume_ to a next _state_ can be done with a variable and a _switch_ instruction. Or:
 - _resume_ to a next _state_ can be done by switching to another function.
 - Persistent variables must be implemented _globally_.
+
 
 ### Basic Example
 
@@ -65,6 +68,7 @@ The rules to _yield_ and _resume_ are:
 		jm_Scheduler::cycle();
 	}
 
+
 ### Study Plan
 
 - Begin with example **Clock1.ino**. This example demonstrates the advantages to start immediately a time display routine and periodically repeat it.
@@ -72,6 +76,7 @@ The rules to _yield_ and _resume_ are:
 - **Clock4.ino** example presents a usefully **jm_Scheduler** technical: changing dynamically the routine to execute.
 - **Beat1.ino** and **Beat2.ino** examples present interaction between 2 scheduling routines.
 - **Wakeup1.ino** example demonstrates the possible interaction between an interrupt and a scheduled routine, implementing a timeout.
+
 
 ### Timestamp
 
@@ -96,6 +101,7 @@ _timestamp_ is a 32bit _[us]_ counter and it overflows about every 70 minutes (p
 The periodicity of 70 minutes is sometimes not enough to control slow processes.
 Look next section for answers and tricks.
 -->
+
 
 ### Timestamp declaration and constants
 
@@ -158,6 +164,7 @@ If invoked from inside _routine_, `stop()` doesn't exit the function, just cance
 The new values are evaluated on exit routine function.
 The main usage is to change _interval_ or _function_ or both or else cancel further execution.
 
+
 ### jm_Scheduler loop
 
 ```C
@@ -166,6 +173,7 @@ static void cycle();
 
 > `cycle()` is the cornerstone of the scheduler and must be invoked as often as possible. 
 The right place is in Arduino `loop()` function. Example:
+
 ```C
 void loop(void)
 {
@@ -173,14 +181,41 @@ void loop(void)
 }
 ```
 
-> But also in every long functions called from `setup()`or `loop()`.
+> `cycle()` can also be invoked in Arduino `setup()` function. Example:
+
+```C
+void setup(void)
+{
+	// here, some jm_Scheduler variables initialized...
+	
+	Serial.begin(9600);
+	while (!Serial)
+	{
+		// wait for USB Serial ready...
+		
+		jm_Scheduler::cycle();
+	}
+	
+	// split long setup()...
+
+	jm_Scheduler::cycle();
+	
+	// continue setup()...
+}
+```
+
+> `cycle()` can't be invoked from inside a routine function.
 
 
 ### Good scheduling practices
 
 - To guarantee a good scheduling of all managed tasks,
 the execution time of each function must be as short as possible.
-- Avoid `delay()` function, replace with `rearm()` function and appropriate arguments.
+
+- Avoid Arduino `delay()` function, use **jm_Scheduler** `rearm()` function with appropriate arguments to split the routine in some serialized functions.
+
+- Use same technical for long calculations.
+
 
 ### Changing of Timestamp
 
