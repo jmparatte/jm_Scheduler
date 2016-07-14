@@ -31,8 +31,8 @@ but with some improvements:
 - The executed routine can be dynamically changed.
 
 **jm_Scheduler** doesn't schedule like the official [**Scheduler** Library for Arduino DUE and ZERO](https://www.arduino.cc/en/Reference/Scheduler) does,
-`yield()` function which suspends the task is not implemented,
-`startLoop()` function which creates a new _stack_ for the task is not implemented.
+`yield()` function which suspends a task is not implemented,
+`startLoop()` function which allocates a new _stack_ to a new task is not implemented.
 
 **jm_Scheduler** schedules tasks sequentially on the stack processor.
 The rules to _yield_ and _resume_ are:
