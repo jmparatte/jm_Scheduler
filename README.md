@@ -1,6 +1,6 @@
 <!--
 
-2016-07-13: In progress...
+2016-07-14: In progress...
 2016-07-08: Initial commit.
 
 Licence: LGPL v3
@@ -16,9 +16,10 @@ Email: jean-marc@paratte.ch
 
 2016-07-08: Initial commit
 
-### Concepts
+### Concept
 
-**jm_Scheduler** schedules repeated and intervaled routines like the JavaScript `setInterval()` function does, but with some differences:
+**jm_Scheduler** schedules repeated and intervaled routines like the JavaScript `setInterval()` function does,
+but with some improvements:
 
 - By default, **jm_Scheduler** starts immediately the routine and repeats it periodically.
 - The first execution can be differed.
@@ -26,6 +27,18 @@ Email: jean-marc@paratte.ch
 - The interval between executions can be dynamically modified.
 - The execution can be stopped and later restarted.
 - The executed routine can be dynamically changed.
+
+**jm_Scheduler** doesn't schedule like the official [**Scheduler** Library for Arduino DUE and ZERO](https://www.arduino.cc/en/Reference/Scheduler) does,
+`yield()` function which suspends the task is not implemented,
+`startLoop()` function which creates a new _stack_ for the task is not implemented.
+
+**jm_Scheduler** schedules tasks sequentially on the stack processor.
+The rules to _yield_ and _resume_ are:
+
+- _yield_ comes out when _routine_ leaves at end of function or by an explicit `return` instruction.
+- _resume_ to a next _state_ can be done with a variable and a _switch_ instruction. Or:
+- _resume_ to a next _state_ can be done by switching to another function.
+- Persistent variables must be implemented _globally_.
 
 ### Basic Example
 
@@ -73,20 +86,16 @@ unsigned long micros()
 
 Look at https://www.arduino.cc/en/Reference/Micros for details.
 
+<!--
 ### More about Timestamp
+-->
 
 _timestamp_ is a 32bit _[us]_ counter and it overflows about every 70 minutes (precisely 1h+11m+34s+967ms+296us).
 
+<!--
 The periodicity of 70 minutes is sometimes not enough to control slow processes.
 Look next section for answers and tricks.
-
-### Changing of Timestamp
-
-Here are some hacks that can be implemented by modifying the file **jm_Scheduler.h**.
-
-- Another choice for the _timestamp_ resolution could be the _[ms]_ read from the Arduino function `millis()`. 
-- Gain speed during _timestamp_ comparison by shortening the size to 16bit.
-- Obtain very long periodicity by implementing a 64bit _timestamp_.
+-->
 
 ### Timestamp declaration and constants
 
@@ -116,3 +125,49 @@ If the routine doesn't end before, the scheduler could miss very long scheduling
 > `TIMESTAMP_TMAX` is the maximum allowed scheduling time of a routine.
 In practice, don't use _timestamp_ values greater than 1 hour.
 
+### jm_Scheduler functions
+
+```C
+// start routine immediately
+void start(voidfuncptr_t func);
+
+// start routine immediately and repeat it at fixed interval
+void start(voidfuncptr_t func, timestamp_t ival);
+
+// start routine on time and repeat it at fixed interval
+void start(voidfuncptr_t func, timestamp_t time, timestamp_t ival);
+
+// stop routine, current or scheduled, remove it from chain
+void stop();
+
+// rearm current routine and set or reset interval
+void rearm(timestamp_t ival);
+
+// rearm current routine, change routine function and set or reset interval
+void rearm(voidfuncptr_t func, timestamp_t ival);
+```
+
+> `start()` starts a routine immediately or on time, with or without repetitions.
+`start()` is invoked one time for a given scheduler variable.
+
+> `stop()` cancels further execution of scheduled task. 
+`stop()` can be invoked from inside _routine_ or from other program parts.
+If invoked from inside _routine_, `stop()` doesn't exit the function, just cancels further execution.
+
+> `rearm()` changes the values of the given scheduler variable.
+The new values are evaluated on exit _routine_ function.
+The main usage is to change _interval_ or change _function_ or else cancel further execution.
+
+### Good scheduling practices
+
+- To guarantee a good scheduling of all managed tasks,
+the execution time of each function must be as short as possible.
+- Avoid `delay()` function, replace with `rearm()` function and appropriate arguments.
+
+### Changing of Timestamp
+
+Here are some hacks that can be implemented by modifying the file **jm_Scheduler.h**.
+
+- Another choice for the _timestamp_ resolution could be the _[ms]_ read from the Arduino function `millis()`. 
+- Gain speed during _timestamp_ comparison by shortening the size to 16bit.
+- Obtain very long periodicity by implementing a 64bit _timestamp_.
