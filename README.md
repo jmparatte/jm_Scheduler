@@ -147,16 +147,34 @@ void rearm(timestamp_t ival);
 void rearm(voidfuncptr_t func, timestamp_t ival);
 ```
 
-> `start()` starts a routine immediately or on time, with or without repetitions.
-`start()` is invoked one time for a given scheduler variable.
+> `start()` initiates a scheduler variable, starts a routine function, immediately or on time, with or without repetitions.
+`start()` is invoked once. Next `rearm()` allows changing scheduler values.
 
-> `stop()` cancels further execution of scheduled task. 
-`stop()` can be invoked from inside _routine_ or from other program parts.
+> `stop()` cancels further execution of a scheduled routine. 
+`stop()` can be invoked from inside routine or elsewhere.
 If invoked from inside _routine_, `stop()` doesn't exit the function, just cancels further execution.
 
-> `rearm()` changes the values of the given scheduler variable.
-The new values are evaluated on exit _routine_ function.
-The main usage is to change _interval_ or change _function_ or else cancel further execution.
+> `rearm()` changes values of a scheduler variable.
+The new values are evaluated on exit routine function.
+The main usage is to change _interval_ or _function_ or both or else cancel further execution.
+
+### jm_Scheduler loop
+
+```C
+static void cycle();
+```
+
+> `cycle()` is the cornerstone of the scheduler and must be invoked as often as possible. 
+The right place is in Arduino `loop()` function. Example:
+```C
+void loop(void)
+{
+	jm_Scheduler::cycle();
+}
+```
+
+> But also in every long functions called from `setup()`or `loop()`.
+
 
 ### Good scheduling practices
 
