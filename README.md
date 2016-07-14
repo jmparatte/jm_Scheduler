@@ -21,7 +21,7 @@ Email: jean-marc@paratte.ch
 **jm_Scheduler** schedules repeated and intervaled routines like the JavaScript `setInterval()` function does, but with some differences:
 
 - By default, **jm_Scheduler** starts immediately the routine and repeats it periodically.
-- The 1st execution can be differed.
+- The first execution can be differed.
 - The repeated executions can be voided.
 - The interval between executions can be dynamically modified.
 - The execution can be stopped and later restarted.
@@ -56,7 +56,7 @@ Email: jean-marc@paratte.ch
 
 - Begin with example **Clock1.ino**. This example demonstrates the advantages to start immediately a time display routine and periodically repeat it.
 - Follow with examples **Clock2.ino** and **Clock3.ino** which present other timing ways.
-- **Clock4.ino** example presents a usefully **jm_Scheduler** technic: changing dynamically the routine to execute.
+- **Clock4.ino** example presents a usefully **jm_Scheduler** technical: changing dynamically the routine to execute.
 - **Beat1.ino** and **Beat2.ino** examples present interaction between 2 scheduling routines.
 - **Wakeup1.ino** example demonstrates the possible interaction between an interrupt and a scheduled routine, implementing a timeout.
 
