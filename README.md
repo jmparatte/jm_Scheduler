@@ -26,21 +26,21 @@ but with some improvements:
 - By default, **jm_Scheduler** starts immediately the routine and repeats it periodically.
 - The first execution can be differed.
 - The repeated executions can be voided.
-- The interval between executions can be dynamically modified.
-- The execution can be stopped and later restarted.
-- The executed routine can be dynamically changed.
+- The interval between executions can be dynamically changed.
+- The scheduled routine function can be dynamically changed.
+- The scheduled routine can be stopped and later restarted.
 
 **jm_Scheduler** doesn't schedule like the official [**Scheduler** Library for Arduino DUE and ZERO](https://www.arduino.cc/en/Reference/Scheduler) does,
 `yield()` function which suspends a task is not implemented,
-`startLoop()` function which allocates a new _stack_ to a new task is not implemented.
+`startLoop()` function which allocates a stack to the new task is not implemented.
 
 **jm_Scheduler** schedules tasks sequentially on the stack processor.
 The rules to _yield_ and _resume_ are:
 
-- _yield_ comes out when _routine_ leaves at end of function or by an explicit `return` instruction.
-- _resume_ to a next _state_ can be done with a variable and a _switch_ instruction. Or:
-- _resume_ to a next _state_ can be done by switching to another function.
-- Persistent variables must be implemented _globally_.
+- _yield_ comes out when routine leaves at end of function or by an explicit `return` instruction.
+- _resume_ to a next state can be done with a variable and a `switch` instruction. Or:
+- _resume_ to a next state can be done by switching to another function.
+- Persistent variables must be implemented _global_ or _local_ with the pragma `static`.
 
 
 ### Basic Example
@@ -71,22 +71,22 @@ The rules to _yield_ and _resume_ are:
 
 ### Study Plan
 
-- Begin with example **Clock1.ino**. This example demonstrates the advantages to start immediately a time display routine and periodically repeat it.
+- Begin with example **Clock1.ino**. This example demonstrates the advantage to start immediately a time display routine and periodically repeat it.
 - Follow with examples **Clock2.ino** and **Clock3.ino** which present other timing ways.
-- **Clock4.ino** example presents a usefully **jm_Scheduler** technical: changing dynamically the routine to execute.
-- **Beat1.ino** and **Beat2.ino** examples present interaction between 2 scheduling routines.
+- **Clock4.ino** example presents a usefully **jm_Scheduler** technical: changing dynamically the function to execute.
+- **Beat1.ino** and **Beat2.ino** examples present interaction between 2 scheduled routines.
 - **Wakeup1.ino** example demonstrates the possible interaction between an interrupt and a scheduled routine, implementing a timeout.
 
 
 ### Timestamp
 
 The _timestamp_ is read from the Arduino function `micros()`.
-By design, the `micros()` function of Arduino UNO and Leonardo running at 16MHz returns a _[us]_ _timestamp_ with a resolution of _[4us]_.
+By design, the `micros()` function of Arduino UNO and Leonardo running at 16MHz returns a [us] _timestamp_ with a resolution of [4us].
 
 `micros()` declaration is:
 
 ```C
-unsigned long micros()
+unsigned long micros();
 ```
 
 Look at https://www.arduino.cc/en/Reference/Micros for details.
@@ -95,7 +95,7 @@ Look at https://www.arduino.cc/en/Reference/Micros for details.
 ### More about Timestamp
 -->
 
-_timestamp_ is a 32bit _[us]_ counter and it overflows about every 70 minutes (precisely 1h+11m+34s+967ms+296us).
+_timestamp_ is a 32bit [us] counter and overflows about every 70 minutes (precisely 1h+11m+34s+967ms+296us).
 
 <!--
 The periodicity of 70 minutes is sometimes not enough to control slow processes.
@@ -131,7 +131,7 @@ If the routine doesn't end before, the scheduler could miss very long scheduling
 > `TIMESTAMP_TMAX` is the maximum allowed scheduling time of a routine.
 In practice, don't use _timestamp_ values greater than 1 hour.
 
-### jm_Scheduler functions
+### jm_Scheduler methods
 
 ```C
 // start routine immediately
@@ -172,7 +172,9 @@ static void cycle();
 ```
 
 > `cycle()` is the cornerstone of the scheduler and must be invoked as often as possible. 
-The right place is in Arduino `loop()` function. Example:
+Note that `cycle()` is a _static_ _method_. 
+The right place is in Arduino `loop()` function.
+Example:
 
 ```C
 void loop(void)
@@ -209,10 +211,10 @@ void setup(void)
 
 ### Good scheduling practices
 
-- To guarantee a good scheduling of all managed tasks,
+- To guarantee a good scheduling of all tasks,
 the execution time of each function must be as short as possible.
 
-- Avoid Arduino `delay()` function, use **jm_Scheduler** `rearm()` function with appropriate arguments to split the routine in some serialized functions.
+- Avoid Arduino `delay()` function, use **jm_Scheduler** `rearm()` method with appropriate arguments to split the routine in some serialized functions.
 
 - Use same technical for long calculations.
 
@@ -221,6 +223,6 @@ the execution time of each function must be as short as possible.
 
 Here are some hacks that can be implemented by modifying the file **jm_Scheduler.h**.
 
-- Another choice for the _timestamp_ resolution could be the _[ms]_ read from the Arduino function `millis()`. 
+- Another source for the _timestamp_ could be the [ms] read from the Arduino function `millis()`. 
 - Gain speed during _timestamp_ comparison by shortening the size to 16bit.
 - Obtain very long periodicity by implementing a 64bit _timestamp_.
