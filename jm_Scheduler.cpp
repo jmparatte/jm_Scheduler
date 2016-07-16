@@ -148,34 +148,40 @@ void jm_Scheduler::display(int line)
 	Serial.print(':');
 	Serial.print(jm_Scheduler::tref);
 
-	Serial.print(' ');
-	Serial.print("first");
-	Serial.print('=');
+//	Serial.print(' ');
+//	Serial.print("first");
+//	Serial.print('=');
+	Serial.print(F(" first="));
 	Serial.print((long)jm_Scheduler::first);
 
-	Serial.print(' ');
-	Serial.print("crnt");
-	Serial.print('=');
+//	Serial.print(' ');
+//	Serial.print("crnt");
+//	Serial.print('=');
+	Serial.print(F(" crnt="));
 	Serial.print((long)jm_Scheduler::crnt);
 
-	Serial.print(' ');
-	Serial.print("this");
-	Serial.print('=');
+//	Serial.print(' ');
+//	Serial.print("this");
+//	Serial.print('=');
+	Serial.print(F(" this="));
 	Serial.print((long)this);
 
-	Serial.print(' ');
-	Serial.print("time");
-	Serial.print('=');
+//	Serial.print(' ');
+//	Serial.print("time");
+//	Serial.print('=');
+	Serial.print(F(" time="));
 	Serial.print(this->time);
 
-	Serial.print(' ');
-	Serial.print("ival");
-	Serial.print('=');
+//	Serial.print(' ');
+//	Serial.print("ival");
+//	Serial.print('=');
+	Serial.print(F(" ival="));
 	Serial.print(this->ival);
 
-	Serial.print(' ');
-	Serial.print("next");
-	Serial.print('=');
+//	Serial.print(' ');
+//	Serial.print("next");
+//	Serial.print('=');
+	Serial.print(F(" next="));
 	Serial.print((long)this->next);
 
 	Serial.println();
