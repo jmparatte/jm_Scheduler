@@ -332,6 +332,13 @@ void jm_Scheduler::rearm(timestamp_t ival)
 	this->ival = ival;
 }
 
+// rearm current routine, set time and set or reset interval
+void jm_Scheduler::rearm(timestamp_t time, timestamp_t ival)
+{
+	this->time = time;
+	this->ival = ival;
+}
+
 // rearm current routine, change routine function and set or reset interval
 void jm_Scheduler::rearm(voidfuncptr_t func, timestamp_t ival)
 {

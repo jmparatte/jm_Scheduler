@@ -6,7 +6,7 @@
 	scheduler named "jm_Scheduler" to use in various environment
 	like Arduino, Energia, MDEB, etc...
 
-	Copyright (c) 2016,2015 Jean-Marc Paratte
+	Copyright (c) 2017,2016,2015 Jean-Marc Paratte
 
 	jm_Scheduler is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
     You should have received a copy of the GNU General Public License
     along with jm_Scheduler.  If not, see <http://www.gnu.org/licenses/>.
 
-    Last revised: 2016-07-07,2016-04-27,2015-06-29
+    Last revised: 2017-04-26,2016-07-07,2016-04-27,2015-06-29
 */
 
 #ifndef jm_Scheduler_h
@@ -42,8 +42,10 @@ typedef void (*voidfuncptr_t)(void); // void function pointer typedef
 typedef uint32_t timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t timestamp_t;
 #define us_ticker_read() ((timestamp_t)micros()) // mbed/us_ticker_api.h(54): uint32_t us_ticker_read(void);
 #endif
+
 //typedef int32_t stimestamp_t; // signed timestamp_t
 #define timestamp_read() us_ticker_read()
+
 //#define TIMESTAMP_TMAX ((timestamp_t)(1UL<<(sizeof(timestamp_t)*8-1))-1) // 2147483647=0x7FFFFFFF
 // 4'294'967'296 = 1'0000'0000 = [2^32us]
 // 3'600'000'000 =   D693'A400 = [1h]
@@ -66,7 +68,7 @@ typedef uint32_t timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t timesta
 
 //------------------------------------------------------------------------------
 
-#define jm_Scheduler_time_read() us_ticker_read()
+#define jm_Scheduler_time_read() timestamp_read()
 #define jm_Scheduler_tref_read() (jm_Scheduler::tref)
 #define jm_Scheduler_tref_ival(ival) (jm_Scheduler::tref + ival)
 
@@ -129,6 +131,9 @@ public:
 
 	// rearm current routine and set or reset interval
 	void rearm(timestamp_t ival);
+
+	// rearm current routine, set time and set or reset interval
+	void rearm(timestamp_t time, timestamp_t ival);
 
 	// rearm current routine, change routine function and set or reset interval
 	void rearm(voidfuncptr_t func, timestamp_t ival);
