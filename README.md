@@ -18,7 +18,9 @@ Email: jean-marc@paratte.ch
 # jm_Scheduler - A Scheduler Library for Arduino
 
 2017-04-26: 1.0.2 - Add _void rearm(timestamp_t time, timestamp_t ival);_
+
 2017-03-29: 1.0.1 - Minor adjustment
+
 2016-07-08: Initial commit
 
 
