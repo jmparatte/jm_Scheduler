@@ -116,8 +116,15 @@ void jm_Scheduler::wakeup_chain_remove()
 	this->wakeup_next = 0;
 }
 
+//------------------------------------------------------------------------------
+
 jm_Scheduler::jm_Scheduler()
 {
+//	jm_Scheduler(false);
+//}
+//
+//jm_Scheduler::jm_Scheduler(bool async)
+//{
 	this->func = 0;
 	this->time = 0;
 	this->ival = 0;
@@ -128,8 +135,10 @@ jm_Scheduler::jm_Scheduler()
 	this->wakeup_next = 0;	// next in wakeup routine chain
 	this->wakeup_count = 0;	// count of repeated interrupt routine
 
+//	this->async = async;
 	this->started = false;
 	this->stopping = false;
+	this->yielded = false;
 }
 
 jm_Scheduler::~jm_Scheduler()
@@ -141,6 +150,8 @@ jm_Scheduler::operator bool()
 {
 	return (this->started);
 }
+
+//------------------------------------------------------------------------------
 
 void jm_Scheduler::display(int line)
 {
@@ -187,6 +198,8 @@ void jm_Scheduler::display(int line)
 	Serial.println();
 	Serial.flush();
 }
+
+//------------------------------------------------------------------------------
 
 void jm_Scheduler::time_cycle()
 {
@@ -256,6 +269,41 @@ void jm_Scheduler::cycle()
 }
 }
 
+void jm_Scheduler::yield()
+{
+	if (jm_Scheduler::crnt) // called from a running routine ?
+	{
+		// backup routine states
+		timestamp_t tref_ = jm_Scheduler::tref;
+		jm_Scheduler *crnt_ = jm_Scheduler::crnt;
+
+		// set routine yielded state
+		crnt_->yielded = true;
+
+		jm_Scheduler::crnt = 0; // free scheduler from current routine
+		jm_Scheduler::cycle(); // yield current routine
+
+		// clr routine yielded state
+		crnt_->yielded = false;
+
+		// restore routine states
+		jm_Scheduler::crnt = crnt_;
+		jm_Scheduler::tref = tref_;
+	}
+	else // called from setup() or loop().
+	{
+		jm_Scheduler::cycle();
+	}
+}
+
+void jm_Scheduler::sleep(timestamp_t ival)
+{
+	timestamp_t time1 = jm_Scheduler_time_read() + ival;
+	while (!jm_Scheduler_time_ge_time(jm_Scheduler_time_read(), time1)) jm_Scheduler::yield();
+}
+
+//------------------------------------------------------------------------------
+
 // start routine immediately
 void jm_Scheduler::start(voidfuncptr_t func)
 {
@@ -271,6 +319,7 @@ void jm_Scheduler::start(voidfuncptr_t func)
 
 	this->started = true;
 	this->stopping = false;
+	this->yielded = false;
 }
 
 // start routine immediately and repeat it at fixed intervals
@@ -288,6 +337,7 @@ void jm_Scheduler::start(voidfuncptr_t func, timestamp_t ival)
 
 	this->started = true;
 	this->stopping = false;
+	this->yielded = false;
 }
 
 // start routine on time and repeat it at fixed intervals
@@ -305,6 +355,7 @@ void jm_Scheduler::start(voidfuncptr_t func, timestamp_t time, timestamp_t ival)
 
 	this->started = true;
 	this->stopping = false;
+	this->yielded = false;
 }
 
 // stop routine, current or scheduled, remove from chain
@@ -321,30 +372,69 @@ void jm_Scheduler::stop()
 	{
 		this->started = false;
 		this->stopping = false;
+		this->yielded = false;
 
 		this->chain_remove();
 	}
 }
 
-// rearm current routine and set or reset interval
+//------------------------------------------------------------------------------
+
+// rearm routine
+void jm_Scheduler::rearm()
+{
+}
+
+// rearm routine asynchronously
+void jm_Scheduler::rearm_async()
+{
+	this->time = jm_Scheduler_time_read();
+}
+
+// rearm routine and set next interval
 void jm_Scheduler::rearm(timestamp_t ival)
 {
 	this->ival = ival;
 }
 
-// rearm current routine, set time and set or reset interval
-void jm_Scheduler::rearm(timestamp_t time, timestamp_t ival)
+// rearm routine asynchronously and set next interval
+void jm_Scheduler::rearm_async(timestamp_t ival)
 {
-	this->time = time;
+	this->time = jm_Scheduler_time_read();
 	this->ival = ival;
 }
 
-// rearm current routine, change routine function and set or reset interval
+//// rearm routine, set time and set next interval
+//void jm_Scheduler::rearm(timestamp_t time, timestamp_t ival)
+//{
+//	this->time = time;
+//	this->ival = ival;
+//}
+
+// rearm routine, change routine function and set next interval
 void jm_Scheduler::rearm(voidfuncptr_t func, timestamp_t ival)
 {
 	this->func = func;
 	this->ival = ival;
 }
+
+// rearm routine asynchronously, change routine function and set next interval
+void jm_Scheduler::rearm_async(voidfuncptr_t func, timestamp_t ival)
+{
+	this->time = jm_Scheduler_time_read();
+	this->func = func;
+	this->ival = ival;
+}
+
+//// rearm routine, change routine function, set time and set next interval
+//void jm_Scheduler::rearm(voidfuncptr_t func, timestamp_t time, timestamp_t ival)
+//{
+//	this->func = func;
+//	this->time = time;
+//	this->ival = ival;
+//}
+
+//------------------------------------------------------------------------------
 
 // wakeup a scheduled routine (maybe repeated)
 void jm_Scheduler::wakeup()
@@ -382,3 +472,7 @@ int jm_Scheduler::wakeup_read()
 
 	return count;
 }
+
+//------------------------------------------------------------------------------
+
+// END.

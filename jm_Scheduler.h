@@ -30,7 +30,7 @@
 //------------------------------------------------------------------------------
 
 #ifndef assert
-#define assert(v) while(!v){} // default assert function
+#define assert(v) while(!(v)){} // default assert function
 #endif
 
 #ifndef voidfuncptr_t
@@ -104,10 +104,14 @@ public:
 	void wakeup_chain_append();
 	void wakeup_chain_remove();
 
+//	bool async;
 	bool started;
 	bool stopping;
+	bool yielded;
 
 	jm_Scheduler();
+//	jm_Scheduler(bool async);
+
 	~jm_Scheduler();
 
 	operator bool();
@@ -116,6 +120,8 @@ public:
 
 	static void time_cycle();
 	static void cycle();
+	static void yield();
+	static void sleep(timestamp_t ival);
 
 	// start routine immediately
 	void start(voidfuncptr_t func);
@@ -129,14 +135,29 @@ public:
 	// stop routine, current or scheduled, remove it from chain
 	void stop();
 
-	// rearm current routine and set or reset interval
+	// rearm routine
+	void rearm();
+
+	// rearm routine asynchronously
+	void rearm_async();
+
+	// rearm routine and set interval
 	void rearm(timestamp_t ival);
 
-	// rearm current routine, set time and set or reset interval
-	void rearm(timestamp_t time, timestamp_t ival);
+	// rearm routine asynchronously and set interval
+	void rearm_async(timestamp_t ival);
 
-	// rearm current routine, change routine function and set or reset interval
+//	// rearm routine, set time and set next interval
+//	void rearm(timestamp_t time, timestamp_t ival);
+
+	// rearm routine, change routine function and set interval
 	void rearm(voidfuncptr_t func, timestamp_t ival);
+
+	// rearm routine asynchronously, change routine function and set interval
+	void rearm_async(voidfuncptr_t func, timestamp_t ival);
+
+//	// rearm routine, change routine function, set time and set interval
+//	void rearm(voidfuncptr_t func, timestamp_t time, timestamp_t ival);
 
 	// wakeup a scheduled routine (maybe repeated)
 	void wakeup();
