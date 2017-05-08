@@ -72,19 +72,22 @@ typedef uint32_t timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t timesta
 #define jm_Scheduler_tref_read() (jm_Scheduler::tref)
 #define jm_Scheduler_tref_ival(ival) (jm_Scheduler::tref + ival)
 
-#define jm_Scheduler_time_ge_time(tref, time) ((timestamp_t)(tref - time) <= TIMESTAMP_TMAX)
-#define jm_Scheduler_tref_ge_time(time) ((timestamp_t)(jm_Scheduler::tref - time) <= TIMESTAMP_TMAX)
-#define jm_Scheduler_tref_ival_ge_time(ival, time) ((timestamp_t)(jm_Scheduler::tref + ival - time) <= TIMESTAMP_TMAX)
+//#define jm_Scheduler_time_ge_time(tref, time) ((timestamp_t)(tref - time) <= TIMESTAMP_TMAX)
+//#define jm_Scheduler_tref_ge_time(time) ((timestamp_t)(jm_Scheduler::tref - time) <= TIMESTAMP_TMAX)
+//#define jm_Scheduler_tref_ival_ge_time(ival, time) ((timestamp_t)(jm_Scheduler::tref + ival - time) <= TIMESTAMP_TMAX)
+#define jm_Scheduler_time_ge_time(tref, time) ((timestamp_t)(tref - time) < TIMESTAMP_DEAD)
+#define jm_Scheduler_tref_ge_time(time) ((timestamp_t)(jm_Scheduler::tref - time) < TIMESTAMP_DEAD)
+#define jm_Scheduler_tref_ival_ge_time(ival, time) ((timestamp_t)(jm_Scheduler::tref + ival - time) < TIMESTAMP_DEAD)
 
 class jm_Scheduler
 {
 public:
 
-	static timestamp_t tref;			// current scheduler time
-	static jm_Scheduler *first;			// first scheduled routine chain
-	static jm_Scheduler *crnt;			// current running routine
+	static volatile timestamp_t tref;			// current scheduler time
+	static volatile jm_Scheduler *first;		// first scheduled routine chain
+	static volatile jm_Scheduler *crnt;			// current running routine
 
-	static jm_Scheduler *wakeup_first;	// first wakeup routine chain
+	static volatile jm_Scheduler *wakeup_first;	// first wakeup routine chain
 
 public:
 

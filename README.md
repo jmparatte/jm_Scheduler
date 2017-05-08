@@ -1,5 +1,6 @@
 <!--
 
+2017-05-08: 1.0.4
 2017-05-05: 1.0.3
 2017-04-26: 1.0.2
 2017-03-29: 1.0.1
@@ -18,14 +19,13 @@ Email: jean-marc@paratte.ch
 
 # jm_Scheduler - A Scheduler Library for Arduino
 
-2017-05-05: 1.0.3 - Add _yield()_, _sleep()_, _rearm_async(); Remove _void rearm(timestamp_t time, timestamp_t ival);_
-
+```C
+2017-05-08: 1.0.4 - Minor adjustments
+2017-05-05: 1.0.3 - Add _yield()_, _sleep()_, _rearm_async()_; Remove _void rearm(timestamp_t time, timestamp_t ival);_
 2017-04-26: 1.0.2 - Add _void rearm(timestamp_t time, timestamp_t ival);_
-
-2017-03-29: 1.0.1 - Minor adjustment
-
+2017-03-29: 1.0.1 - Minor adjustments
 2016-07-08: Initial commit
-
+```
 
 ### Concept
 

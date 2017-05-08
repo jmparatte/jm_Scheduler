@@ -1,12 +1,12 @@
 /*
 	jm_Scheduler
-	===========
+	============
 
 	jm_Scheduler.h and jm_Scheduler.cpp - Implementation of a general
 	scheduler named "jm_Scheduler" to use in various environment
 	like Arduino, Energia, MBED, etc...
 
-	Copyright (c) 2016,2015 Jean-Marc Paratte
+	Copyright (c) 2017,2016,2015 Jean-Marc Paratte
 
 	jm_Scheduler is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,25 +21,24 @@
     You should have received a copy of the GNU General Public License
     along with jm_Scheduler.  If not, see <http://www.gnu.org/licenses/>.
 
-    Last revised: 2016-07-07,2016-04-27,2015-06-29
+    Last revised: 2017-04-26,2016-07-07,2016-04-27,2015-06-29
 */
 
 #include <jm_Scheduler.h>
 
 //------------------------------------------------------------------------------
 
-timestamp_t jm_Scheduler::tref = timestamp_read();	// current scheduler time
-jm_Scheduler *jm_Scheduler::first = 0;				// first scheduled routine chain
-jm_Scheduler *jm_Scheduler::crnt = 0;				// current running routine
+static volatile timestamp_t jm_Scheduler::tref = timestamp_read();	// current scheduler time
+static volatile jm_Scheduler *jm_Scheduler::first = 0;				// first scheduled routine chain
+static volatile jm_Scheduler *jm_Scheduler::crnt = 0;				// current running routine
 
-jm_Scheduler *jm_Scheduler::wakeup_first = 0;		// first wakeup routine chain
+static volatile jm_Scheduler *jm_Scheduler::wakeup_first = 0;		// first wakeup routine chain
 
 void jm_Scheduler::chain_insert()
 {
 	jm_Scheduler *prev1 = 0;
 	jm_Scheduler *next1 = jm_Scheduler::first;
 
-//	while (next1 && (long)(this->time - next1->time) >= 0)
 	while (next1 && jm_Scheduler_time_ge_time(this->time, next1->time))
 	{
 		prev1 = next1;
@@ -120,11 +119,6 @@ void jm_Scheduler::wakeup_chain_remove()
 
 jm_Scheduler::jm_Scheduler()
 {
-//	jm_Scheduler(false);
-//}
-//
-//jm_Scheduler::jm_Scheduler(bool async)
-//{
 	this->func = 0;
 	this->time = 0;
 	this->ival = 0;
@@ -274,7 +268,7 @@ void jm_Scheduler::yield()
 	if (jm_Scheduler::crnt) // called from a running routine ?
 	{
 		// backup routine states
-		timestamp_t tref_ = jm_Scheduler::tref;
+//		timestamp_t tref_ = jm_Scheduler::tref;
 		jm_Scheduler *crnt_ = jm_Scheduler::crnt;
 
 		// set routine yielded state
@@ -288,7 +282,7 @@ void jm_Scheduler::yield()
 
 		// restore routine states
 		jm_Scheduler::crnt = crnt_;
-		jm_Scheduler::tref = tref_;
+//		jm_Scheduler::tref = tref_;
 	}
 	else // called from setup() or loop().
 	{
@@ -313,9 +307,9 @@ void jm_Scheduler::start(voidfuncptr_t func)
 
 	this->chain_insert();
 
-	wakeup_time = 0;		// time of first wakeup (may be repeated)
-	wakeup_next = 0;		// next routine in wakeup routine chain
-	wakeup_count = 0;		// count of repeated wakeup
+	this->wakeup_time = 0;		// time of first wakeup (may be repeated)
+	this->wakeup_next = 0;		// next routine in wakeup routine chain
+	this->wakeup_count = 0;		// count of repeated wakeup
 
 	this->started = true;
 	this->stopping = false;
@@ -331,9 +325,9 @@ void jm_Scheduler::start(voidfuncptr_t func, timestamp_t ival)
 
 	this->chain_insert();
 
-	wakeup_time = 0;		// time of first wakeup (may be repeated)
-	wakeup_next = 0;		// next routine in wakeup routine chain
-	wakeup_count = 0;		// count of repeated wakeup
+	this->wakeup_time = 0;		// time of first wakeup (may be repeated)
+	this->wakeup_next = 0;		// next routine in wakeup routine chain
+	this->wakeup_count = 0;		// count of repeated wakeup
 
 	this->started = true;
 	this->stopping = false;
@@ -349,9 +343,9 @@ void jm_Scheduler::start(voidfuncptr_t func, timestamp_t time, timestamp_t ival)
 
 	this->chain_insert();
 
-	wakeup_time = 0;		// time of first wakeup (may be repeated)
-	wakeup_next = 0;		// next routine in wakeup routine chain
-	wakeup_count = 0;		// count of repeated wakeup
+	this->wakeup_time = 0;		// time of first wakeup (may be repeated)
+	this->wakeup_next = 0;		// next routine in wakeup routine chain
+	this->wakeup_count = 0;		// count of repeated wakeup
 
 	this->started = true;
 	this->stopping = false;
