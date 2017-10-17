@@ -3,7 +3,7 @@
 
 # jm_Scheduler - A Scheduler Library for Arduino
 
-```C
+```
 2017-10-17: v1.0.5 - Minor adjustments.
 2017-05-08: v1.0.4 - Minor adjustments.
 2017-05-08: v1.0.4 - Minor adjustments.
