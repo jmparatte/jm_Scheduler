@@ -21,18 +21,23 @@
     You should have received a copy of the GNU General Public License
     along with jm_Scheduler.  If not, see <http://www.gnu.org/licenses/>.
 
-    Last revised: 2017-04-26,2016-07-07,2016-04-27,2015-06-29
+    Last revised: 2017-07-20,2017-04-26,2016-07-07,2016-04-27,2015-06-29
 */
 
 #include <jm_Scheduler.h>
 
 //------------------------------------------------------------------------------
 
-static volatile timestamp_t jm_Scheduler::tref = timestamp_read();	// current scheduler time
-static volatile jm_Scheduler *jm_Scheduler::first = 0;				// first scheduled routine chain
-static volatile jm_Scheduler *jm_Scheduler::crnt = 0;				// current running routine
+//static volatile timestamp_t jm_Scheduler::tref = timestamp_read();	// current scheduler time
+//static volatile jm_Scheduler *jm_Scheduler::first = 0;				// first scheduled routine chain
+//static volatile jm_Scheduler *jm_Scheduler::crnt = 0;				// current running routine
+//
+//static volatile jm_Scheduler *jm_Scheduler::wakeup_first = 0;		// first wakeup routine chain
+timestamp_t jm_Scheduler::tref = timestamp_read();	// current scheduler time
+jm_Scheduler *jm_Scheduler::first = 0;				// first scheduled routine chain
+jm_Scheduler *jm_Scheduler::crnt = 0;				// current running routine
 
-static volatile jm_Scheduler *jm_Scheduler::wakeup_first = 0;		// first wakeup routine chain
+jm_Scheduler *jm_Scheduler::wakeup_first = 0;		// first wakeup routine chain
 
 void jm_Scheduler::chain_insert()
 {
@@ -64,10 +69,12 @@ void jm_Scheduler::chain_remove()
 	}
 
 	if (next1)
+	{
 		if (prev1)
 			prev1->next = this->next;
 		else
 			jm_Scheduler::first = this->next;
+	}
 
 	this->next = 0;
 }
@@ -77,20 +84,22 @@ void jm_Scheduler::wakeup_chain_append()
 	jm_Scheduler *wakeup_prev1 = 0;
 	jm_Scheduler *wakeup_next1 = jm_Scheduler::wakeup_first;
 
-	while (wakeup_next1)
+	while (wakeup_next1) // loop wakeup_chain
 	{
-		if (wakeup_next1 == this) return;
+		if (wakeup_next1 == this) return; // already inserted in wakeup_chain ? exit function
 
 		wakeup_prev1 = wakeup_next1;
 		wakeup_next1 = wakeup_next1->wakeup_next;
 	}
+	// end of wakeup_cain reached, this not found in it
 
+	// insert this at end of wakeup_chain
 	if (wakeup_prev1)
 		wakeup_prev1->wakeup_next = this;
 	else
 		jm_Scheduler::wakeup_first = this;
 
-	this->wakeup_next = 0;
+//	this->wakeup_next = 0;
 }
 
 void jm_Scheduler::wakeup_chain_remove()
@@ -98,27 +107,44 @@ void jm_Scheduler::wakeup_chain_remove()
 	jm_Scheduler *wakeup_prev1 = 0;
 	jm_Scheduler *wakeup_next1 = jm_Scheduler::wakeup_first;
 
-	while (wakeup_next1)
+	while (wakeup_next1) // loop wakeup_chain
 	{
-		if (wakeup_next1 == this) break;
+		if (wakeup_next1 == this) // this found in wakeup_chain ?
+		{
+			// remove from wakeup_chain
+			if (wakeup_prev1)
+				wakeup_prev1->wakeup_next = this->wakeup_next;
+			else
+				jm_Scheduler::wakeup_first = this->wakeup_next;
+			this->wakeup_next = 0;
+
+			return; // now removed from wakeup_chain, exit function
+		}
 
 		wakeup_prev1 = wakeup_next1;
 		wakeup_next1 = wakeup_next1->wakeup_next;
 	}
-
-	if (wakeup_next1)
-		if (wakeup_prev1)
-			wakeup_prev1->wakeup_next = this->wakeup_next;
-		else
-			jm_Scheduler::wakeup_first = this->wakeup_next;
-
-	this->wakeup_next = 0;
 }
 
 //------------------------------------------------------------------------------
 
-jm_Scheduler::jm_Scheduler()
+jm_Scheduler::jm_Scheduler() :
+	func(NULL),
+	time(0),
+	ival(0),
+
+	next(NULL),
+
+	wakeup_time(0),			// time of first wakeup routine chain
+	wakeup_next(NULL),			// next in wakeup routine chain
+	wakeup_count(0),		// count of repeated interrupt routine
+
+//	async(async),
+	started(false),
+	stopping(false),
+	yielded(false)
 {
+#if 0
 	this->func = 0;
 	this->time = 0;
 	this->ival = 0;
@@ -133,6 +159,7 @@ jm_Scheduler::jm_Scheduler()
 	this->started = false;
 	this->stopping = false;
 	this->yielded = false;
+#endif
 }
 
 jm_Scheduler::~jm_Scheduler()
@@ -210,18 +237,19 @@ void jm_Scheduler::cycle()
 
 	if (jm_Scheduler::wakeup_first)
 	{
-		jm_Scheduler *wakeup_first = jm_Scheduler::wakeup_first;
+		jm_Scheduler *wakeup_first0 = jm_Scheduler::wakeup_first;
 
 		// remove wakeup_first
-		jm_Scheduler::wakeup_first = wakeup_first->wakeup_next;
-		wakeup_first->wakeup_next = 0;
+		jm_Scheduler::wakeup_first = wakeup_first0->wakeup_next;
+		wakeup_first0->wakeup_next = 0;
 
 		// remove wakeuped routine from routine chain
-		jm_Scheduler::wakeup_first->chain_remove();
+//		jm_Scheduler::wakeup_first->chain_remove();
+		wakeup_first0->chain_remove();
 
 		// insert wakeuped routine at first routine
-		wakeup_first->next = jm_Scheduler::first;
-		jm_Scheduler::first = wakeup_first;
+		wakeup_first0->next = jm_Scheduler::first;
+		jm_Scheduler::first = wakeup_first0;
 
 		sei();
 	}
@@ -233,8 +261,6 @@ void jm_Scheduler::cycle()
 
 		if (!jm_Scheduler_tref_ge_time(jm_Scheduler::first->time)) break;
 	}
-
-//	jm_Scheduler::first->display(__LINE__);
 
 	// set crnt with first
 	jm_Scheduler::crnt = jm_Scheduler::first;
@@ -268,21 +294,21 @@ void jm_Scheduler::yield()
 	if (jm_Scheduler::crnt) // called from a running routine ?
 	{
 		// backup routine states
-//		timestamp_t tref_ = jm_Scheduler::tref;
-		jm_Scheduler *crnt_ = jm_Scheduler::crnt;
+//		timestamp_t tref0 = jm_Scheduler::tref;
+		jm_Scheduler *crnt0 = jm_Scheduler::crnt;
 
 		// set routine yielded state
-		crnt_->yielded = true;
+		crnt0->yielded = true;
 
 		jm_Scheduler::crnt = 0; // free scheduler from current routine
 		jm_Scheduler::cycle(); // yield current routine
 
 		// clr routine yielded state
-		crnt_->yielded = false;
+		crnt0->yielded = false;
 
 		// restore routine states
-		jm_Scheduler::crnt = crnt_;
-//		jm_Scheduler::tref = tref_;
+		jm_Scheduler::crnt = crnt0;
+//		jm_Scheduler::tref = tref0;
 	}
 	else // called from setup() or loop().
 	{
@@ -357,9 +383,8 @@ void jm_Scheduler::stop()
 {
 	if (!this->started || this->stopping) return;
 
-	if (this == this->crnt) // routine running ?
+	if (this == jm_Scheduler::crnt) // routine running ?
 	{
-//		this->started = false;
 		this->stopping = true;
 	}
 	else
@@ -465,6 +490,13 @@ int jm_Scheduler::wakeup_read()
 	sei();
 
 	return count;
+}
+
+//------------------------------------------------------------------------------
+
+void yield(void)
+{
+	jm_Scheduler::cycle();
 }
 
 //------------------------------------------------------------------------------

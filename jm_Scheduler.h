@@ -29,21 +29,33 @@
 
 //------------------------------------------------------------------------------
 
-#ifndef assert
-#define assert(v) while(!(v)){} // default assert function
+#ifdef assert
+#else
+#	ifdef NDEBUG
+#		define assert(e) ((void)0)
+#	else
+#		define assert(e) ((e) ? (void)0 : abort())
+#	endif
 #endif
 
 #ifndef voidfuncptr_t
 typedef void (*voidfuncptr_t)(void); // void function pointer typedef
 #endif
 
+#ifndef cli
+#define cli() noInterrupts()
+#endif
+
+#ifndef sei
+#define sei() interrupts()
+#endif
+
 #ifdef ARDUINO
 #include <Arduino.h>
-typedef uint32_t timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t timestamp_t;
+typedef unsigned long timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t timestamp_t;
 #define us_ticker_read() ((timestamp_t)micros()) // mbed/us_ticker_api.h(54): uint32_t us_ticker_read(void);
 #endif
 
-//typedef int32_t stimestamp_t; // signed timestamp_t
 #define timestamp_read() us_ticker_read()
 
 //#define TIMESTAMP_TMAX ((timestamp_t)(1UL<<(sizeof(timestamp_t)*8-1))-1) // 2147483647=0x7FFFFFFF
@@ -72,9 +84,6 @@ typedef uint32_t timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t timesta
 #define jm_Scheduler_tref_read() (jm_Scheduler::tref)
 #define jm_Scheduler_tref_ival(ival) (jm_Scheduler::tref + ival)
 
-//#define jm_Scheduler_time_ge_time(tref, time) ((timestamp_t)(tref - time) <= TIMESTAMP_TMAX)
-//#define jm_Scheduler_tref_ge_time(time) ((timestamp_t)(jm_Scheduler::tref - time) <= TIMESTAMP_TMAX)
-//#define jm_Scheduler_tref_ival_ge_time(ival, time) ((timestamp_t)(jm_Scheduler::tref + ival - time) <= TIMESTAMP_TMAX)
 #define jm_Scheduler_time_ge_time(tref, time) ((timestamp_t)(tref - time) < TIMESTAMP_DEAD)
 #define jm_Scheduler_tref_ge_time(time) ((timestamp_t)(jm_Scheduler::tref - time) < TIMESTAMP_DEAD)
 #define jm_Scheduler_tref_ival_ge_time(ival, time) ((timestamp_t)(jm_Scheduler::tref + ival - time) < TIMESTAMP_DEAD)
@@ -83,11 +92,16 @@ class jm_Scheduler
 {
 public:
 
-	static volatile timestamp_t tref;			// current scheduler time
-	static volatile jm_Scheduler *first;		// first scheduled routine chain
-	static volatile jm_Scheduler *crnt;			// current running routine
+//	static volatile timestamp_t tref;			// current scheduler time
+//	static volatile jm_Scheduler *first;		// first scheduled routine chain
+//	static volatile jm_Scheduler *crnt;			// current running routine
+//
+//	static volatile jm_Scheduler *wakeup_first;	// first wakeup routine chain
+	static timestamp_t tref;			// current scheduler time
+	static jm_Scheduler *first;			// first scheduled routine chain
+	static jm_Scheduler *crnt;			// current running routine
 
-	static volatile jm_Scheduler *wakeup_first;	// first wakeup routine chain
+	static jm_Scheduler *wakeup_first;	// first wakeup routine chain
 
 public:
 
@@ -168,6 +182,10 @@ public:
 	// read wakeup count, reset it and remove routine from wakeup chain
 	int wakeup_read();
 };
+
+//------------------------------------------------------------------------------
+
+extern void yield(void);
 
 //------------------------------------------------------------------------------
 

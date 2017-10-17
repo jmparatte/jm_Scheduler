@@ -1,30 +1,16 @@
-<!--
-
-2017-05-08: 1.0.4
-2017-05-05: 1.0.3
-2017-04-26: 1.0.2
-2017-03-29: 1.0.1
-2016-07-14: In progress...
-2016-07-08: Initial commit.
-
-Licence: LGPL v3
-
-Author: Jean-Marc Paratte
-Email: jean-marc@paratte.ch
-
--->
 
 <img src="http://jean-marc.paratte.ch/wp-content/uploads/2013/01/diduino1_960x96.jpg" class="header-image" alt="jmP" height="96" width="960">
-
 
 # jm_Scheduler - A Scheduler Library for Arduino
 
 ```C
-2017-05-08: 1.0.4 - Minor adjustments
-2017-05-05: 1.0.3 - Add _yield()_, _sleep()_, _rearm_async()_; Remove _void rearm(timestamp_t time, timestamp_t ival);_
-2017-04-26: 1.0.2 - Add _void rearm(timestamp_t time, timestamp_t ival);_
-2017-03-29: 1.0.1 - Minor adjustments
-2016-07-08: Initial commit
+2017-10-17: v1.0.5 - Minor adjustments.
+2017-05-08: v1.0.4 - Minor adjustments.
+2017-05-08: v1.0.4 - Minor adjustments.
+2017-05-05: v1.0.3 - Adding yield(),sleep(),rearm_async(). Removing void rearm(timestamp_t time, timestamp_t ival);
+2017-04-26: v1.0.2 - Adding void rearm(timestamp_t time, timestamp_t ival);
+2017-03-29: v1.0.1 - Minor adjustments.
+2016-07-08: v1.0.0 - Initial commit.
 ```
 
 ### Concept
