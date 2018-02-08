@@ -29,6 +29,34 @@
 
 //------------------------------------------------------------------------------
 
+#include <Arduino.h>
+
+//----------------------------------------------------------------------
+
+#ifndef voidfuncptr_t
+#define voidfuncptr_t voidfuncptr_t
+typedef void (*voidfuncptr_t)(void); // void function pointer typedef
+#endif
+
+#ifndef vfp_vpu32b_t
+#define vfp_vpu32b_t vfp_vpu32b_t
+typedef void (*vfp_vpu32b_t)(void*, uint32_t, bool);
+#endif
+
+//----------------------------------------------------------------------
+
+#ifndef timestamp_t
+#define timestamp_t timestamp_t
+typedef uint32_t timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t timestamp_t;
+#endif
+
+#ifndef timestamp_read
+#define timestamp_read() timestamp_read()
+inline timestamp_t timestamp_read() { return (timestamp_t)micros(); } // mbed/us_ticker_api.h(54): uint32_t us_ticker_read(void);
+#endif
+
+//------------------------------------------------------------------------------
+
 #ifdef assert
 #else
 #	ifdef NDEBUG
@@ -38,25 +66,7 @@
 #	endif
 #endif
 
-#ifndef voidfuncptr_t
-typedef void (*voidfuncptr_t)(void); // void function pointer typedef
-#endif
-
-#ifndef cli
-#define cli() noInterrupts()
-#endif
-
-#ifndef sei
-#define sei() interrupts()
-#endif
-
-#ifdef ARDUINO
-#include <Arduino.h>
-typedef unsigned long timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t timestamp_t;
-#define us_ticker_read() ((timestamp_t)micros()) // mbed/us_ticker_api.h(54): uint32_t us_ticker_read(void);
-#endif
-
-#define timestamp_read() us_ticker_read()
+//------------------------------------------------------------------------------
 
 //#define TIMESTAMP_TMAX ((timestamp_t)(1UL<<(sizeof(timestamp_t)*8-1))-1) // 2147483647=0x7FFFFFFF
 // 4'294'967'296 = 1'0000'0000 = [2^32us]
@@ -64,6 +74,7 @@ typedef unsigned long timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t ti
 //   694'967'296 =   296C'5C00 = [2^32us - 1h = 694.967296s = 11m + 34.967296s]
 // 3'947'483'648 =   EB49'D200
 //   268'435'456 =   1000'0000 = [268.435456s = 4m + 28.435456s]
+//    65'536'000 =    3E8'0000 = [65.536000s = 1m + 5.536000s]
 //     1'000'000 =      F'4240 = [1s]
 //    30'000'000 =    1C9'C380 = [30s]
 // 4'264'951'808 =   FE36'0000 = 1'0000'0000 - 1CA'0000 = [1h + 11m + 4s + 951ms + 808us]
@@ -92,11 +103,6 @@ class jm_Scheduler
 {
 public:
 
-//	static volatile timestamp_t tref;			// current scheduler time
-//	static volatile jm_Scheduler *first;		// first scheduled routine chain
-//	static volatile jm_Scheduler *crnt;			// current running routine
-//
-//	static volatile jm_Scheduler *wakeup_first;	// first wakeup routine chain
 	static timestamp_t tref;			// current scheduler time
 	static jm_Scheduler *first;			// first scheduled routine chain
 	static jm_Scheduler *crnt;			// current running routine
@@ -121,14 +127,11 @@ public:
 	void wakeup_chain_append();
 	void wakeup_chain_remove();
 
-//	bool async;
 	bool started;
 	bool stopping;
 	bool yielded;
 
 	jm_Scheduler();
-//	jm_Scheduler(bool async);
-
 	~jm_Scheduler();
 
 	operator bool();
@@ -178,6 +181,9 @@ public:
 
 	// wakeup a scheduled routine (maybe repeated)
 	void wakeup();
+
+	// wakeup a scheduled routine (maybe repeated but only 1st wakeup_time is recorded)
+	void wakeup(uint32_t wakeup_time);
 
 	// read wakeup count, reset it and remove routine from wakeup chain
 	int wakeup_read();

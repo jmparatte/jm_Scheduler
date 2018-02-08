@@ -12,25 +12,39 @@ jm_Scheduler	KEYWORD1
 # Methods and Functions (KEYWORD2)
 #######################################
 
+voidfuncptr_t	KEYWORD2
+vfp_vpu32b_t	KEYWORD2
+timestamp_t	KEYWORD2
+timestamp_read	KEYWORD2
+
 jm_Scheduler_time_read	KEYWORD2
 jm_Scheduler_tref_read	KEYWORD2
 jm_Scheduler_tref_ival	KEYWORD2
 
-display		KEYWORD2
+jm_Scheduler_time_ge_time	KEYWORD2
+jm_Scheduler_tref_ge_time	KEYWORD2
+jm_Scheduler_tref_ival_ge_time	KEYWORD2
+
+display	KEYWORD2
+
 time_cycle	KEYWORD2
-cycle		KEYWORD2
-start		KEYWORD2
-stop		KEYWORD2
-rearm		KEYWORD2
-wakeup		KEYWORD2
+cycle	KEYWORD2
+yield	KEYWORD2
+sleep	KEYWORD2
+
+start	KEYWORD2
+stop	KEYWORD2
+rearm	KEYWORD2
+rearm_async	KEYWORD2
+wakeup	KEYWORD2
 wakeup_read	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
 #######################################
 
-TIMESTAMP_DEAD LITERAL1
-TIMESTAMP_TMAX LITERAL1
+TIMESTAMP_DEAD	LITERAL1
+TIMESTAMP_TMAX	LITERAL1
 
 TIMESTAMP_1US	LITERAL1
 TIMESTAMP_1MS	LITERAL1

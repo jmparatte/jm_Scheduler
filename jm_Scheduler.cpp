@@ -21,18 +21,13 @@
     You should have received a copy of the GNU General Public License
     along with jm_Scheduler.  If not, see <http://www.gnu.org/licenses/>.
 
-    Last revised: 2017-07-20,2017-04-26,2016-07-07,2016-04-27,2015-06-29
+    Last revised: 2017-11-10,2017-07-20,2017-04-26,2016-07-07,2016-04-27,2015-06-29
 */
 
 #include <jm_Scheduler.h>
 
 //------------------------------------------------------------------------------
 
-//static volatile timestamp_t jm_Scheduler::tref = timestamp_read();	// current scheduler time
-//static volatile jm_Scheduler *jm_Scheduler::first = 0;				// first scheduled routine chain
-//static volatile jm_Scheduler *jm_Scheduler::crnt = 0;				// current running routine
-//
-//static volatile jm_Scheduler *jm_Scheduler::wakeup_first = 0;		// first wakeup routine chain
 timestamp_t jm_Scheduler::tref = timestamp_read();	// current scheduler time
 jm_Scheduler *jm_Scheduler::first = 0;				// first scheduled routine chain
 jm_Scheduler *jm_Scheduler::crnt = 0;				// current running routine
@@ -139,27 +134,10 @@ jm_Scheduler::jm_Scheduler() :
 	wakeup_next(NULL),			// next in wakeup routine chain
 	wakeup_count(0),		// count of repeated interrupt routine
 
-//	async(async),
 	started(false),
 	stopping(false),
 	yielded(false)
 {
-#if 0
-	this->func = 0;
-	this->time = 0;
-	this->ival = 0;
-
-	this->next = 0;
-
-	this->wakeup_time = 0;	// time of first wakeup routine chain
-	this->wakeup_next = 0;	// next in wakeup routine chain
-	this->wakeup_count = 0;	// count of repeated interrupt routine
-
-//	this->async = async;
-	this->started = false;
-	this->stopping = false;
-	this->yielded = false;
-#endif
 }
 
 jm_Scheduler::~jm_Scheduler()
@@ -233,7 +211,7 @@ void jm_Scheduler::cycle()
 {
 	jm_Scheduler::time_cycle();
 
-	cli();
+	noInterrupts();
 
 	if (jm_Scheduler::wakeup_first)
 	{
@@ -251,11 +229,11 @@ void jm_Scheduler::cycle()
 		wakeup_first0->next = jm_Scheduler::first;
 		jm_Scheduler::first = wakeup_first0;
 
-		sei();
+		interrupts();
 	}
 	else
 	{
-		sei();
+		interrupts();
 
 		if (jm_Scheduler::first == 0) break;
 
@@ -472,12 +450,29 @@ void jm_Scheduler::wakeup()
 	this->wakeup_count++; // inc wakeup_count
 }
 
+// wakeup a scheduled routine (maybe repeated but only 1st wakeup_time is recorded)
+void jm_Scheduler::wakeup(uint32_t wakeup_time)
+{
+	if (!this->started) return;
+
+//	if (this == jm_Scheduler::crnt) return;
+
+	if (this->wakeup_count == 0) // set wakeup_time if never set before
+	{
+		this->wakeup_time = wakeup_time;
+
+		this->wakeup_chain_append();
+	}
+
+	this->wakeup_count++; // inc wakeup_count
+}
+
 // read wake_count, reset it and remove routine from wakeup chain
 int jm_Scheduler::wakeup_read()
 {
 	int count = 0;
 
-	cli();
+	noInterrupts();
 
 	if (this->wakeup_count)
 	{
@@ -487,7 +482,7 @@ int jm_Scheduler::wakeup_read()
 		this->wakeup_chain_remove();
 	}
 
-	sei();
+	interrupts();
 
 	return count;
 }
