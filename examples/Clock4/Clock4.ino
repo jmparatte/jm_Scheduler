@@ -3,37 +3,7 @@
 
 #include <jm_Scheduler.h>
 
-//------------------------------------------------------------------------------
-
-void led_init()
-{
-	pinMode(LED_BUILTIN, OUTPUT);
-}
-
-void led_on()
-{
-	digitalWrite(LED_BUILTIN, HIGH);
-}
-
-void led_off()
-{
-	digitalWrite(LED_BUILTIN, LOW);
-}
-
-void led_write(bool state)
-{
-	if (state) led_on(); else led_off();
-}
-
-bool led_state()
-{
-	return (digitalRead(LED_BUILTIN) == HIGH);
-}
-
-void led_toggle()
-{
-	led_write(!led_state());
-}
+#include "led.h"
 
 //------------------------------------------------------------------------------
 
@@ -68,31 +38,34 @@ void clock_display()
 	Serial.print( clock_sec/10 );
 	Serial.print( clock_sec%10 );
 	Serial.println();
-	Serial.flush();
 }
 
 //------------------------------------------------------------------------------
 
 jm_Scheduler clock_scheduler;
 
-void clock_routine_led_off();
+void clock_coroutine_led_off();
 
-void clock_routine_led_on()
+void clock_coroutine_led_on()
 {
+	static bool coroutine_first_start = true;
+
+	if (!coroutine_first_start) clock_inc();
+
 	led_on(); // LED ON, pulse LED every second
 
 	clock_display();
 
-	clock_inc();
+	coroutine_first_start = false;
 
-	clock_scheduler.rearm( clock_routine_led_off, 20*TIMESTAMP_1MS ); // 20ms
+	clock_scheduler.rearm( clock_coroutine_led_off, 20*TIMESTAMP_1MS ); // 20ms
 }
 
-void clock_routine_led_off()
+void clock_coroutine_led_off()
 {
 	led_off(); // LED OFF
 
-	clock_scheduler.rearm( clock_routine_led_on, TIMESTAMP_1SEC - 20*TIMESTAMP_1MS ); // 1s - 20ms
+	clock_scheduler.rearm( clock_coroutine_led_on, TIMESTAMP_1SEC - 20*TIMESTAMP_1MS ); // 1s - 20ms
 }
 
 //------------------------------------------------------------------------------
@@ -107,10 +80,10 @@ void setup()
 
 	led_init();
 
-	clock_scheduler.start(clock_routine_led_on); // Start routine immediately, interval will be set later.
+	clock_scheduler.start(clock_coroutine_led_on); // Start coroutine immediately, interval will be set later.
 }
 
 void loop()
 {
-	jm_Scheduler::cycle();
+	yield();
 }

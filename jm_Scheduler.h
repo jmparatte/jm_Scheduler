@@ -3,10 +3,10 @@
 	============
 
 	jm_Scheduler.h and jm_Scheduler.cpp - Implementation of a general
-	scheduler named "jm_Scheduler" to use in various environment
-	like Arduino, Energia, MDEB, etc...
+	cooperative scheduler named "jm_Scheduler" to use in various environment
+	like Arduino, Energia, MBED, etc...
 
-	Copyright (c) 2017,2016,2015 Jean-Marc Paratte
+	Copyright (c) 2018,2017,2016,2015 Jean-Marc Paratte
 
 	jm_Scheduler is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
     You should have received a copy of the GNU General Public License
     along with jm_Scheduler.  If not, see <http://www.gnu.org/licenses/>.
 
-    Last revised: 2017-04-26,2016-07-07,2016-04-27,2015-06-29
+    Last revised: 2018-03-27,2018-02-08,2017-11-10,2017-07-20,2017-04-26,2016-07-07,2016-04-27,2015-06-29
 */
 
 #ifndef jm_Scheduler_h
@@ -104,21 +104,21 @@ class jm_Scheduler
 public:
 
 	static timestamp_t tref;			// current scheduler time
-	static jm_Scheduler *first;			// first scheduled routine chain
-	static jm_Scheduler *crnt;			// current running routine
+	static jm_Scheduler *first;			// first scheduled coroutine chain
+	static jm_Scheduler *crnt;			// current running coroutine
 
-	static jm_Scheduler *wakeup_first;	// first wakeup routine chain
+	static jm_Scheduler *wakeup_first;	// first wakeup coroutine chain
 
 public:
 
-	voidfuncptr_t func;					// address of routine function
+	voidfuncptr_t func;					// address of coroutine function
 	timestamp_t time;					// time of scheduled execution
 	timestamp_t ival;					// interval of cyclic execution
 
-	jm_Scheduler *next;					// next in routine chain
+	jm_Scheduler *next;					// next in coroutine chain
 
 	timestamp_t wakeup_time;			// time of first wakeup (may be repeated)
-	jm_Scheduler *wakeup_next;			// next routine in wakeup routine chain
+	jm_Scheduler *wakeup_next;			// next coroutine in wakeup coroutine chain
 	int wakeup_count;					// count of repeated wakeup
 
 	void chain_insert();
@@ -143,49 +143,49 @@ public:
 	static void yield();
 	static void sleep(timestamp_t ival);
 
-	// start routine immediately
+	// start coroutine immediately
 	void start(voidfuncptr_t func);
 
-	// start routine immediately and repeat it at fixed interval
+	// start coroutine immediately and repeat it at fixed interval
 	void start(voidfuncptr_t func, timestamp_t ival);
 
-	// start routine on time and repeat it at fixed interval
+	// start coroutine on time and repeat it at fixed interval
 	void start(voidfuncptr_t func, timestamp_t time, timestamp_t ival);
 
-	// stop routine, current or scheduled, remove it from chain
+	// stop coroutine, current or scheduled, remove it from chain
 	void stop();
 
-	// rearm routine
+	// rearm coroutine
 	void rearm();
 
-	// rearm routine asynchronously
+	// rearm coroutine asynchronously
 	void rearm_async();
 
-	// rearm routine and set interval
+	// rearm coroutine and set interval
 	void rearm(timestamp_t ival);
 
-	// rearm routine asynchronously and set interval
+	// rearm coroutine asynchronously and set interval
 	void rearm_async(timestamp_t ival);
 
-//	// rearm routine, set time and set next interval
+//	// rearm coroutine, set time and set next interval
 //	void rearm(timestamp_t time, timestamp_t ival);
 
-	// rearm routine, change routine function and set interval
+	// rearm coroutine, change coroutine function and set interval
 	void rearm(voidfuncptr_t func, timestamp_t ival);
 
-	// rearm routine asynchronously, change routine function and set interval
+	// rearm coroutine asynchronously, change coroutine function and set interval
 	void rearm_async(voidfuncptr_t func, timestamp_t ival);
 
-//	// rearm routine, change routine function, set time and set interval
+//	// rearm coroutine, change coroutine function, set time and set interval
 //	void rearm(voidfuncptr_t func, timestamp_t time, timestamp_t ival);
 
-	// wakeup a scheduled routine (maybe repeated)
+	// wakeup a scheduled coroutine (maybe repeated)
 	void wakeup();
 
-	// wakeup a scheduled routine (maybe repeated but only 1st wakeup_time is recorded)
+	// wakeup a scheduled coroutine (maybe repeated but only 1st wakeup_time is recorded)
 	void wakeup(uint32_t wakeup_time);
 
-	// read wakeup count, reset it and remove routine from wakeup chain
+	// read wakeup count, reset it and remove coroutine from wakeup chain
 	int wakeup_read();
 };
 

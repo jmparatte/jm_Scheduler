@@ -3,37 +3,7 @@
 
 #include <jm_Scheduler.h>
 
-//------------------------------------------------------------------------------
-
-void led_init()
-{
-	pinMode(LED_BUILTIN, OUTPUT);
-}
-
-void led_on()
-{
-	digitalWrite(LED_BUILTIN, HIGH);
-}
-
-void led_off()
-{
-	digitalWrite(LED_BUILTIN, LOW);
-}
-
-void led_write(bool state)
-{
-	if (state) led_on(); else led_off();
-}
-
-bool led_state()
-{
-	return (digitalRead(LED_BUILTIN) == HIGH);
-}
-
-void led_toggle()
-{
-	led_write(!led_state());
-}
+#include "led.h"
 
 //------------------------------------------------------------------------------
 
@@ -70,14 +40,13 @@ void clock_display()
 	Serial.print( clock_sec/10 );
 	Serial.print( clock_sec%10 );
 	Serial.println();
-	Serial.flush();
 }
 
 //------------------------------------------------------------------------------
 
 jm_Scheduler clock_scheduler;
 
-void clock_routine()
+void clock_coroutine()
 {
 	if (clock_t50 == 0) led_on(); // LED ON, pulse 20ms every 1s
 	if (clock_t50 == 1) led_off(); // LED OFF.
@@ -109,11 +78,10 @@ void setup()
 
 	led_init();
 
-	clock_scheduler.start(clock_routine, 20*TIMESTAMP_1MS); // Start routine immediately and repeat it every 20ms => 50hz.
+	clock_scheduler.start(clock_coroutine, 20*TIMESTAMP_1MS); // Start coroutine immediately and repeat it every 20ms => 50hz.
 }
 
 void loop()
 {
-	jm_Scheduler::cycle();
+	yield();
 }
-

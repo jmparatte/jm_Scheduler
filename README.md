@@ -1,9 +1,10 @@
 
 <img src="http://jean-marc.paratte.ch/wp-content/uploads/2013/01/diduino1_960x96.jpg" class="header-image" alt="jmP" height="96" width="960">
 
-# jm_Scheduler - A Scheduler Library for Arduino
+# jm_Scheduler - A Cooperative Scheduler Library for Arduino
 
 ```
+2018-03-27: v1.0.7 - A Cooperative Scheduler Library for Arduino.
 2018-02-08: v1.0.6 - Minor adjustments.
 2017-10-17: v1.0.5 - Minor adjustments.
 2017-05-08: v1.0.4 - Minor adjustments.
@@ -16,24 +17,24 @@
 
 ### Concept
 
-**jm_Scheduler** schedules repeated and intervaled routines like the JavaScript `setInterval()` function does,
+**jm_Scheduler** schedules repeated and intervaled coroutines like the JavaScript `setInterval()` function does,
 but with some improvements:
 
-- By default, **jm_Scheduler** starts immediately the routine and repeats it periodically.
+- By default, **jm_Scheduler** starts immediately the coroutine and repeats it periodically.
 - The first execution can be differed.
 - The repeated executions can be voided.
 - The interval between executions can be dynamically changed.
-- The scheduled routine function can be dynamically changed.
-- The scheduled routine can be stopped and later restarted.
+- The scheduled coroutine function can be dynamically changed.
+- The scheduled coroutine can be stopped and later restarted.
 
 **jm_Scheduler** doesn't schedule like the official [**Scheduler** Library for Arduino DUE and ZERO](https://www.arduino.cc/en/Reference/Scheduler) does,
-`yield()` function which suspends a task is not implemented,
+`yield()` function which suspends a task is implemented, but 
 `startLoop()` function which allocates a stack to the new task is not implemented.
 
 **jm_Scheduler** schedules tasks sequentially on the stack processor.
 The rules to _yield_ and _resume_ are:
 
-- _yield_ comes out when routine leaves at end of function or by an explicit `return` instruction.
+- _yield_ comes out when coroutine leaves at end of function or by an explicit `return` instruction.
 - _resume_ to a next state can be done with a variable and a `switch` instruction. Or:
 - _resume_ to a next state can be done by switching to another function.
 - Persistent variables must be implemented _global_ or _local_ with the pragma `static`.
@@ -41,13 +42,13 @@ The rules to _yield_ and _resume_ are:
 
 ### Basic Example
 
-	// This example schedules a routine every second
+	// This example schedules a coroutine every second
 	
 	#include <jm_Scheduler.h>
   
 	jm_Scheduler scheduler;
 	
-	void routine()
+	void coroutine()
 	{
 		Serial.print('.');
 	}
@@ -56,22 +57,22 @@ The rules to _yield_ and _resume_ are:
 	{
 		Serial.begin(9600);
 		
-		scheduler.start(routine, TIMESTAMP_1SEC); // Start immediately routine() and repeat it every second
+		scheduler.start(coroutine, TIMESTAMP_1SEC); // Start immediately coroutine() and repeat it every second
 	}
   
 	void loop(void)
 	{
-		jm_Scheduler::cycle();
+		yield();
 	}
 
 
 ### Study Plan
 
-- Begin with example **Clock1.ino**. This example demonstrates the advantage to start immediately a time display routine and periodically repeat it.
+- Begin with example **Clock1.ino**. This example demonstrates the advantage to start immediately a time display coroutine and periodically repeat it.
 - Follow with examples **Clock2.ino** and **Clock3.ino** which present other timing ways.
 - **Clock4.ino** example presents a usefully **jm_Scheduler** technical: changing dynamically the function to execute.
-- **Beat1.ino** and **Beat2.ino** examples present interaction between 2 scheduled routines.
-- **Wakeup1.ino** example demonstrates the possible interaction between an interrupt and a scheduled routine, implementing a timeout.
+- **Beat1.ino** and **Beat2.ino** examples present interaction between 2 scheduled coroutines.
+- **Wakeup1.ino** example demonstrates the possible interaction between an interrupt and a scheduled coroutine, implementing a timeout.
 
 
 ### Timestamp
@@ -106,7 +107,7 @@ typedef uint32_t timestamp_t;
 
 #define timestamp_read() ((timestamp_t)micros())
 
-#define TIMESTAMP_DEAD (0x01CA0000) // routine dead time [30s + 15ms + 488us]
+#define TIMESTAMP_DEAD (0x01CA0000) // coroutine dead time [30s + 15ms + 488us]
 #define TIMESTAMP_TMAX (0xFE35FFFF) // [1h + 11m + 4s + 951ms + 808us - 1]
 
 #define TIMESTAMP_1US	(1UL)					// [1us]
@@ -119,46 +120,46 @@ typedef uint32_t timestamp_t;
 > `timestamp_t` defines the type of all _timestamp_ values.
 
 > `timestamp_read()` returns the instantaneous _timestamp_.
-This function can also be used by interrupt routines to _timestamp_ they data.
+This function can also be used by interrupt coroutines to _timestamp_ they data.
 
-> `TIMESTAMP_DEAD` is the maximum allowed execution time of a routine to guarantee right scheduling.
-If the routine doesn't end before, the scheduler could miss very long scheduling (see next).
+> `TIMESTAMP_DEAD` is the maximum allowed execution time of a coroutine to guarantee right scheduling.
+If the coroutine doesn't end before, the scheduler could miss very long scheduling (see next).
 
-> `TIMESTAMP_TMAX` is the maximum allowed scheduling time of a routine.
+> `TIMESTAMP_TMAX` is the maximum allowed scheduling time of a coroutine.
 In practice, don't use _timestamp_ values greater than 1 hour.
 
 ### jm_Scheduler methods
 
 ```C
-// start routine immediately
+// start coroutine immediately
 void start(voidfuncptr_t func);
 
-// start routine immediately and repeat it at fixed interval
+// start coroutine immediately and repeat it at fixed interval
 void start(voidfuncptr_t func, timestamp_t ival);
 
-// start routine on time and repeat it at fixed interval
+// start coroutine on time and repeat it at fixed interval
 void start(voidfuncptr_t func, timestamp_t time, timestamp_t ival);
 
-// stop routine, current or scheduled, remove it from chain
+// stop coroutine, current or scheduled, remove it from chain
 void stop();
 
-// rearm current routine and set or reset interval
+// rearm current coroutine and set or reset interval
 void rearm(timestamp_t ival);
 
-// rearm current routine, change routine function and set or reset interval
+// rearm current coroutine, change coroutine function and set or reset interval
 void rearm(voidfuncptr_t func, timestamp_t ival);
-```
 
-> `start()` initiates a scheduler variable, starts a routine function, immediately or on time, with or without repetitions.
+> `start()` initiates a scheduler variable, starts a coroutine function, immediately or on time, with or without repetitions.
 `start()` is invoked once. Next `rearm()` allows changing scheduler values.
 
-> `stop()` cancels further execution of a scheduled routine. 
-`stop()` can be invoked from inside routine or elsewhere.
-If invoked from inside _routine_, `stop()` doesn't exit the function, just cancels further execution.
+> `stop()` cancels further execution of a scheduled coroutine. 
+`stop()` can be invoked from inside coroutine or elsewhere.
+If invoked from inside _coroutine_, `stop()` doesn't exit the function, just cancels further execution.
 
 > `rearm()` changes values of a scheduler variable.
-The new values are evaluated on exit routine function.
+The new values are evaluated on exit coroutine function.
 The main usage is to change _interval_ or _function_ or both or else cancel further execution.
+```
 
 
 ### jm_Scheduler loop
@@ -175,7 +176,7 @@ Example:
 ```C
 void loop(void)
 {
-	jm_Scheduler::cycle();
+	yield();
 }
 ```
 
@@ -191,18 +192,18 @@ void setup(void)
 	{
 		// wait for USB Serial ready...
 		
-		jm_Scheduler::cycle();
+		yield();
 	}
 	
 	// split long setup()...
 
-	jm_Scheduler::cycle();
+	yield();
 	
 	// continue setup()...
 }
 ```
 
-> `cycle()` can't be invoked from inside a routine function.
+> `cycle()` can't be invoked from inside a coroutine function.
 
 
 ### Good scheduling practices
@@ -210,7 +211,7 @@ void setup(void)
 - To guarantee a good scheduling of all tasks,
 the execution time of each function must be as short as possible.
 
-- Avoid Arduino `delay()` function, use **jm_Scheduler** `rearm()` method with appropriate arguments to split the routine in some serialized functions.
+- Avoid Arduino `delay()` function, use **jm_Scheduler** `rearm()` method with appropriate arguments to split the coroutine in some serialized functions.
 
 - Use same technical for long calculations.
 

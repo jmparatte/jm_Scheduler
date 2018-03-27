@@ -3,37 +3,7 @@
 
 #include <jm_Scheduler.h>
 
-//------------------------------------------------------------------------------
-
-void led_init()
-{
-	pinMode(LED_BUILTIN, OUTPUT);
-}
-
-void led_on()
-{
-	digitalWrite(LED_BUILTIN, HIGH);
-}
-
-void led_off()
-{
-	digitalWrite(LED_BUILTIN, LOW);
-}
-
-void led_write(bool state)
-{
-	if (state) led_on(); else led_off();
-}
-
-bool led_state()
-{
-	return (digitalRead(LED_BUILTIN) == HIGH);
-}
-
-void led_toggle()
-{
-	led_write(!led_state());
-}
+#include "led.h"
 
 //------------------------------------------------------------------------------
 
@@ -42,7 +12,7 @@ jm_Scheduler beat_scheduler;
 bool beat_state = false;
 timestamp_t beat_ival = 0;
 
-void beat_routine()
+void beat_coroutine()
 {
 	if (!beat_state)
 	{
@@ -79,10 +49,10 @@ void setup()
 
 	led_init();
 
-	beat_scheduler.start(beat_routine, 10*TIMESTAMP_1MS); // 10ms
+	beat_scheduler.start(beat_coroutine, 10*TIMESTAMP_1MS); // 10ms
 }
 
 void loop()
 {
-	jm_Scheduler::cycle();
+	yield();
 }

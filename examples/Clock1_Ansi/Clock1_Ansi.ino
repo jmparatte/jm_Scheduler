@@ -1,5 +1,5 @@
 
-#define __PROG__ "Clock3"
+#define __PROG__ "Clock1_Ansi"
 
 #include <jm_Scheduler.h>
 
@@ -29,6 +29,9 @@ void clock_inc()
 
 void clock_display()
 {
+	Serial.print( F("\x1B[s") );		// Save Cursor Position
+	Serial.print( F("\x1B[1;71H") );	// Set Cursor Position
+
 	Serial.print( clock_h24/10 );
 	Serial.print( clock_h24%10 );
 	Serial.print( ':' );
@@ -37,7 +40,9 @@ void clock_display()
 	Serial.print( ':' );
 	Serial.print( clock_sec/10 );
 	Serial.print( clock_sec%10 );
-	Serial.println();
+//	Serial.println();
+
+	Serial.print( F("\x1B[u") );		// Restore Cursor Position
 }
 
 //------------------------------------------------------------------------------
@@ -48,22 +53,11 @@ void clock_coroutine()
 {
 	static bool coroutine_first_start = true;
 
-	if (!led_state())
-	{
-		if (!coroutine_first_start) clock_inc();
+	if (!coroutine_first_start) clock_inc();
 
-		led_on(); // LED ON, pulse LED every second
+	led_write(!(clock_sec & 1));
 
-		clock_display();
-
-		clock_scheduler.rearm( 20*TIMESTAMP_1MS ); // 20ms
-	}
-	else
-	{
-		led_off(); // LED OFF
-
-		clock_scheduler.rearm( TIMESTAMP_1SEC - 20*TIMESTAMP_1MS ); // 1s - 20ms
-	}
+	clock_display();
 
 	coroutine_first_start = false;
 }
@@ -74,16 +68,21 @@ void setup()
 {
 	Serial.begin(115200);
 	while (!Serial && millis()<3000); // timeout 3s for USB Serial ready
+
+	Serial.print( F("\x1B[H") );	// Cursor home
+	Serial.print( F("\x1B[2J") );	// Clear Screen
+
 	Serial.print(F(__PROG__));
 	Serial.print(F("..."));
 	Serial.println();
 
 	led_init();
 
-	clock_scheduler.start(clock_coroutine); // Start coroutine immediately, interval will be set later.
+	clock_scheduler.start(clock_coroutine, TIMESTAMP_1SEC); // Start coroutine immediately and repeat it every 1s.
 }
 
 void loop()
 {
 	yield();
 }
+

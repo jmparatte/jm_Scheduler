@@ -3,37 +3,7 @@
 
 #include <jm_Scheduler.h>
 
-//------------------------------------------------------------------------------
-
-void led_init()
-{
-	pinMode(LED_BUILTIN, OUTPUT);
-}
-
-void led_on()
-{
-	digitalWrite(LED_BUILTIN, HIGH);
-}
-
-void led_off()
-{
-	digitalWrite(LED_BUILTIN, LOW);
-}
-
-void led_write(bool state)
-{
-	if (state) led_on(); else led_off();
-}
-
-bool led_state()
-{
-	return (digitalRead(LED_BUILTIN) == HIGH);
-}
-
-void led_toggle()
-{
-	led_write(!led_state());
-}
+#include "led.h"
 
 //------------------------------------------------------------------------------
 
@@ -41,7 +11,7 @@ long count = 0;
 
 jm_Scheduler count1_scheduler;
 
-void count1_routine()
+void count1_coroutine()
 {
 	led_toggle();
 	count++;
@@ -50,7 +20,7 @@ void count1_routine()
 
 jm_Scheduler count_scheduler;
 
-void count_routine()
+void count_coroutine()
 {
 	Serial.println(count);
 	count = 0;
@@ -68,11 +38,11 @@ void setup()
 
 	led_init();
 
-	count1_scheduler.start(count1_routine); // Start routine immediately.
-	count_scheduler.start(count_routine, TIMESTAMP_1SEC); // Start routine immediately and repeat it every 1s.
+	count1_scheduler.start(count1_coroutine); // Start coroutine immediately.
+	count_scheduler.start(count_coroutine, TIMESTAMP_1SEC); // Start coroutine immediately and repeat it every 1s.
 }
 
 void loop()
 {
-	jm_Scheduler::cycle();
+	yield();
 }

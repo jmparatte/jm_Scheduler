@@ -2,7 +2,7 @@
 #define __PROG__ "Wakeup1"
 
 /*
-	Wakeup1.ino demonstrate the possible interaction of interrupt with scheduled routine.
+	Wakeup1.ino demonstrate the possible interaction of interrupt with scheduled coroutine.
 
 	Wakeup1.ino implements an 10s timeout to receive an interrupt.
 	The interrupt is activated when the Arduino UNO pin 2 is shortcut to GND.
@@ -29,6 +29,8 @@
 
 #include <jm_Scheduler.h>
 
+#include "led.h"
+
 //------------------------------------------------------------------------------
 
 /*
@@ -48,34 +50,61 @@
 
 //------------------------------------------------------------------------------
 
-void led_init()
+const timestamp_t WAKEUP_TIMEOUT = 5*TIMESTAMP_1SEC; // 5s
+
+jm_Scheduler wakeup_scheduler;
+
+void wakeup_coroutine_start()
 {
-	pinMode(LED_BUILTIN, OUTPUT);
+	Serial.print(F("          "));
+	Serial.println( F("start... ") );
+
+	led_on(); // LED ON
+
+	wakeup_scheduler.rearm( wakeup_coroutine_stop, WAKEUP_TIMEOUT ); // set timeout
+
+	// flush possible pending FALLING interrupt
+	attachInterrupt(digitalPinToInterrupt(WAKEUP_PIN), dummy_interrupt, FALLING); // attach int.0 (Arduino UNO pin 2).
+//	detachInterrupt(digitalPinToInterrupt(WAKEUP_PIN)); // detach int.0 (Arduino UNO pin 2).
+
+	attachInterrupt(digitalPinToInterrupt(WAKEUP_PIN), wakeup_interrupt, FALLING); // attach int.0 (Arduino UNO pin 2).
 }
 
-void led_on()
+void wakeup_coroutine_stop()
 {
-	digitalWrite(LED_BUILTIN, HIGH);
+	detachInterrupt(digitalPinToInterrupt(WAKEUP_PIN)); // detach int.0 (Arduino UNO pin 2).
+
+	led_off(); // LED OFF
+
+	timestamp_t wakeup_time = wakeup_scheduler.wakeup_time;
+	timestamp_t wakeup_count = wakeup_scheduler.wakeup_read();
+
+	if (wakeup_count == 0) // timeout ?
+	{
+		Serial.print(F("          "));
+		Serial.println( F("timeout") );
+	}
+	else
+	{
+		Serial.print(F("          "));
+		Serial.print( (wakeup_time - (wakeup_scheduler.time - WAKEUP_TIMEOUT))/1E6, 6 ); // print elapsed time in seconds.
+		Serial.println( F("s") );
+		Serial.print(F("          "));
+		Serial.print( wakeup_count );
+		Serial.println( F(" wakeup(s)") ); // print count of wakeups
+	}
+
+	wakeup_scheduler.stop(); // stop coroutine
 }
 
-void led_off()
+void wakeup_interrupt()
 {
-	digitalWrite(LED_BUILTIN, LOW);
+	wakeup_scheduler.wakeup();
 }
 
-void led_write(bool state)
+void dummy_interrupt()
 {
-	if (state) led_on(); else led_off();
-}
-
-bool led_state()
-{
-	return (digitalRead(LED_BUILTIN) == HIGH);
-}
-
-void led_toggle()
-{
-	led_write(!led_state());
+	// does nothing!
 }
 
 //------------------------------------------------------------------------------
@@ -111,72 +140,23 @@ void clock_display()
 	Serial.print( clock_sec/10 );
 	Serial.print( clock_sec%10 );
 	Serial.println();
-	Serial.flush();
 }
 
 //------------------------------------------------------------------------------
 
 jm_Scheduler clock_scheduler;
 
-void clock_routine()
+void clock_coroutine()
 {
+	static bool coroutine_first_start = true;
+
+	if (!coroutine_first_start) clock_inc();
+
 	clock_display();
 
-	clock_inc();
-}
+	if (!wakeup_scheduler && digitalRead(WAKEUP_PIN)) wakeup_scheduler.start(wakeup_coroutine_start);
 
-//------------------------------------------------------------------------------
-
-const timestamp_t wakeup_timeout = 10*TIMESTAMP_1SEC; // 10s
-
-jm_Scheduler wakeup_scheduler;
-
-void wakeup_routine_start()
-{
-	Serial.println( F("wakeup... ") );
-
-	led_on(); // LED ON
-
-	wakeup_scheduler.rearm( wakeup_routine_stop, wakeup_timeout ); // set timeout
-
-	attachInterrupt(digitalPinToInterrupt(WAKEUP_PIN), dummy_interrupt, FALLING); // attach int.0 (Arduino UNO pin 2).
-	detachInterrupt(digitalPinToInterrupt(WAKEUP_PIN)); // detach int.0 (Arduino UNO pin 2).
-
-	attachInterrupt(digitalPinToInterrupt(WAKEUP_PIN), wakeup_interrupt, FALLING); // attach int.0 (Arduino UNO pin 2).
-}
-
-void wakeup_routine_stop()
-{
-	detachInterrupt(digitalPinToInterrupt(WAKEUP_PIN)); // detach int.0 (Arduino UNO pin 2).
-
-	led_off(); // LED OFF
-
-	timestamp_t wakeup_time = wakeup_scheduler.wakeup_time;
-	timestamp_t wakeup_count = wakeup_scheduler.wakeup_read();
-
-	if (wakeup_count == 0) // timeout ?
-	{
-		Serial.println( F("timeout") );
-	}
-	else
-	{
-		Serial.print( (wakeup_time - (wakeup_scheduler.time - wakeup_timeout))/1E6, 6 ); // print elapsed time in seconds.
-		Serial.println( F("s") );
-		Serial.print( wakeup_count );
-		Serial.println( F(" wakeup(s)") ); // print count of wakeups
-	}
-
-	wakeup_scheduler.stop(); // stop routine
-}
-
-void wakeup_interrupt()
-{
-	wakeup_scheduler.wakeup();
-}
-
-void dummy_interrupt()
-{
-	// does nothing!
+	coroutine_first_start = false;
 }
 
 //------------------------------------------------------------------------------
@@ -191,16 +171,13 @@ void setup()
 
 	led_init();
 
-	clock_scheduler.start(clock_routine, TIMESTAMP_1SEC); // Start routine immediately and repeat it every 1s.
+	clock_scheduler.start(clock_coroutine, TIMESTAMP_1SEC); // Start coroutine immediately and repeat it every 1s.
 
 	pinMode(WAKEUP_PIN, INPUT_PULLUP); // Arduino UNO pin 2 is int.0
-	while (!digitalRead(WAKEUP_PIN)); // wait for pullup
+//	while (!digitalRead(WAKEUP_PIN)); // wait for pullup
 }
 
 void loop()
 {
-	jm_Scheduler::cycle();
-
-//	if (!wakeup_scheduler) wakeup_scheduler.start(wakeup_routine_start);
-	if (!wakeup_scheduler) wakeup_scheduler.start(wakeup_routine_start, jm_Scheduler_tref_ival(TIMESTAMP_1SEC), 0);
+	yield();
 }
