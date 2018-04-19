@@ -4,6 +4,7 @@
 # jm_Scheduler - A Cooperative Scheduler Library for Arduino
 
 ```
+2018-04-19: v1.0.8 - yield() function corrected.
 2018-03-27: v1.0.7 - A Cooperative Scheduler Library for Arduino.
 2018-02-08: v1.0.6 - Minor adjustments.
 2017-10-17: v1.0.5 - Minor adjustments.

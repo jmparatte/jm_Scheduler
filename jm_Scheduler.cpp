@@ -470,7 +470,8 @@ int jm_Scheduler::wakeup_read()
 
 void yield(void)
 {
-	jm_Scheduler::cycle();
+//	jm_Scheduler::cycle(); // 2028-04-19
+	jm_Scheduler::yield(); // 2028-04-19
 }
 
 //------------------------------------------------------------------------------
