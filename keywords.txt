@@ -30,7 +30,9 @@ display	KEYWORD2
 time_cycle	KEYWORD2
 cycle	KEYWORD2
 yield	KEYWORD2
-sleep	KEYWORD2
+
+delay	KEYWORD2
+delayMicroseconds	KEYWORD2
 
 start	KEYWORD2
 stop	KEYWORD2

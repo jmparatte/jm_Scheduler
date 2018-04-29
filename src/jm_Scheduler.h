@@ -29,7 +29,8 @@
 
 //------------------------------------------------------------------------------
 
-#include <Arduino.h>
+//#include <Arduino.h>
+#include <stdint.h>
 
 //----------------------------------------------------------------------
 
@@ -47,12 +48,13 @@ typedef void (*vfp_vpu32b_t)(void*, uint32_t, bool);
 
 #ifndef timestamp_t
 #define timestamp_t timestamp_t
-typedef uint32_t timestamp_t; // mbed/ticker_api.h(21): typedef uint32_t timestamp_t;
+typedef uint32_t timestamp_t;
 #endif
 
 #ifndef timestamp_read
-#define timestamp_read() timestamp_read()
-inline timestamp_t timestamp_read() { return (timestamp_t)micros(); } // mbed/us_ticker_api.h(54): uint32_t us_ticker_read(void);
+//#define timestamp_read() timestamp_read()
+//inline timestamp_t timestamp_read() { return (timestamp_t)micros(); }
+#define timestamp_read() ((timestamp_t)micros())
 #endif
 
 //------------------------------------------------------------------------------
@@ -141,7 +143,10 @@ public:
 	static void time_cycle();
 	static void cycle();
 	static void yield();
-	static void sleep(timestamp_t ival);
+//	static void sleep(timestamp_t ival);
+
+	static void delay(unsigned long ms);
+	static void delayMicroseconds(unsigned int us);
 
 	// start coroutine immediately
 	void start(voidfuncptr_t func);
@@ -191,7 +196,7 @@ public:
 
 //------------------------------------------------------------------------------
 
-extern void yield(void);
+//extern void yield(void);
 
 //------------------------------------------------------------------------------
 

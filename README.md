@@ -4,6 +4,7 @@
 # jm_Scheduler - A Cooperative Scheduler Library for Arduino
 
 ```
+2018-04-29: v1.0.9 - jm_Scheduler is now compatible with EPS32. 5 new Blink examples added.
 2018-04-19: v1.0.8 - yield() function corrected.
 2018-03-27: v1.0.7 - A Cooperative Scheduler Library for Arduino.
 2018-02-08: v1.0.6 - Minor adjustments.
@@ -69,6 +70,7 @@ The rules to _yield_ and _resume_ are:
 
 ### Study Plan
 
+2018-04-29: NEW - Begin with **Blink*.ino** examples. Theses examples demonstrate how to blink a led by replacing delay() Arduino function with rearm() jm_Scheduler method.
 - Begin with example **Clock1.ino**. This example demonstrates the advantage to start immediately a time display coroutine and periodically repeat it.
 - Follow with examples **Clock2.ino** and **Clock3.ino** which present other timing ways.
 - **Clock4.ino** example presents a usefully **jm_Scheduler** technical: changing dynamically the function to execute.

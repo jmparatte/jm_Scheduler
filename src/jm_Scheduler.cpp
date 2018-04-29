@@ -26,6 +26,8 @@
 
 #include <jm_Scheduler.h>
 
+#include <Arduino.h> // micros(),...
+
 //------------------------------------------------------------------------------
 
 timestamp_t jm_Scheduler::tref = timestamp_read();	// current scheduler time
@@ -244,6 +246,11 @@ void jm_Scheduler::cycle()
 
 	jm_Scheduler::crnt = NULL;
 }
+
+//#ifdef ARDUINO_ARCH_ESP32
+#ifdef FREERTOS_USED
+	yield();
+#endif
 }
 
 void jm_Scheduler::yield()
@@ -273,9 +280,23 @@ void jm_Scheduler::yield()
 	}
 }
 
-void jm_Scheduler::sleep(timestamp_t ival)
+//void jm_Scheduler::sleep(timestamp_t ival)
+//{
+//	timestamp_t time1 = jm_Scheduler_time_read() + ival;
+//	while (!jm_Scheduler_time_ge_time(jm_Scheduler_time_read(), time1)) jm_Scheduler::yield();
+//}
+
+//------------------------------------------------------------------------------
+
+void jm_Scheduler::delay(unsigned long ms)
 {
-	timestamp_t time1 = jm_Scheduler_time_read() + ival;
+	timestamp_t time1 = jm_Scheduler_time_read() + ms*1000;
+	while (!jm_Scheduler_time_ge_time(jm_Scheduler_time_read(), time1)) jm_Scheduler::yield();
+}
+
+void jm_Scheduler::delayMicroseconds(unsigned int us)
+{
+	timestamp_t time1 = jm_Scheduler_time_read() + us;
 	while (!jm_Scheduler_time_ge_time(jm_Scheduler_time_read(), time1)) jm_Scheduler::yield();
 }
 
@@ -468,11 +489,13 @@ int jm_Scheduler::wakeup_read()
 
 //------------------------------------------------------------------------------
 
+#ifdef ARDUINO_ARCH_ESP32
+#else
 void yield(void)
 {
-//	jm_Scheduler::cycle(); // 2028-04-19
-	jm_Scheduler::yield(); // 2028-04-19
+	jm_Scheduler::yield();
 }
+#endif
 
 //------------------------------------------------------------------------------
 
