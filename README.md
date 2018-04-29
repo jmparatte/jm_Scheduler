@@ -70,7 +70,7 @@ The rules to _yield_ and _resume_ are:
 
 ### Study Plan
 
-- NEW 2018-04-29: Begin with **Blink** 5 progressive examples.
+- NEW 2018-04-29: Begin with the 5 **Blink** progressive examples.
 They demonstrate how to blink a led by replacing delay() Arduino function with rearm() jm_Scheduler method.
 - Begin with example **Clock1.ino**. This example demonstrates the advantage to start immediately a time display coroutine and periodically repeat it.
 - Follow with examples **Clock2.ino** and **Clock3.ino** which present other timing ways.
