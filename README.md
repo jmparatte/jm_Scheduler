@@ -4,6 +4,7 @@
 # jm_Scheduler - A Cooperative Scheduler Library for Arduino
 
 ```
+2018-04-30: v1.0.10 - library.properties adjustement.
 2018-04-29: v1.0.9 - jm_Scheduler is now compatible with EPS32. 5 new Blink examples added.
 2018-04-19: v1.0.8 - yield() function corrected.
 2018-03-27: v1.0.7 - A Cooperative Scheduler Library for Arduino.
