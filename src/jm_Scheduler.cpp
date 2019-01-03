@@ -6,22 +6,22 @@
 	cooperative scheduler named "jm_Scheduler" to use in various environment
 	like Arduino, Energia, MBED, etc...
 
-	Copyright (c) 2018,2017,2016,2015 Jean-Marc Paratte
+	Copyright (c) 2019,2018,2017,2016,2015 Jean-Marc Paratte
 
 	jm_Scheduler is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU Less General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
     jm_Scheduler is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Less General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with jm_Scheduler.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU Less General Public License
+    along with jm_Scheduler. If not, see <http://www.gnu.org/licenses/>.
 
-    Last revised: 2018-03-27,2018-02-08,2017-11-10,2017-07-20,2017-04-26,2016-07-07,2016-04-27,2015-06-29
+    Last revised: 2019-01-03,2018-03-27,2018-02-08,2017-11-10,2017-07-20,2017-04-26,2016-07-07,2016-04-27,2015-06-29
 */
 
 #include <jm_Scheduler.h>
@@ -303,8 +303,10 @@ void jm_Scheduler::delayMicroseconds(unsigned int us)
 //------------------------------------------------------------------------------
 
 // start coroutine immediately
-void jm_Scheduler::start(voidfuncptr_t func)
+bool jm_Scheduler::start(voidfuncptr_t func) // OK
 {
+	if (this->started) return false; // already started ?
+
 	this->func = func;
 	this->time = jm_Scheduler_time_read();
 	this->ival = 0;
@@ -318,11 +320,15 @@ void jm_Scheduler::start(voidfuncptr_t func)
 	this->started = true;
 	this->stopping = false;
 	this->yielded = false;
+
+	return true; // started
 }
 
 // start coroutine immediately and repeat it at fixed intervals
-void jm_Scheduler::start(voidfuncptr_t func, timestamp_t ival)
+bool jm_Scheduler::start(voidfuncptr_t func, timestamp_t ival) // OK
 {
+	if (this->started) return false; // already started ?
+
 	this->func = func;
 	this->time = jm_Scheduler_time_read();
 	this->ival = ival;
@@ -336,11 +342,15 @@ void jm_Scheduler::start(voidfuncptr_t func, timestamp_t ival)
 	this->started = true;
 	this->stopping = false;
 	this->yielded = false;
+
+	return true; // started
 }
 
 // start coroutine on time and repeat it at fixed intervals
-void jm_Scheduler::start(voidfuncptr_t func, timestamp_t time, timestamp_t ival)
+bool jm_Scheduler::start(voidfuncptr_t func, timestamp_t time, timestamp_t ival) // OK
 {
+	if (this->started) return false; // already started ?
+
 	this->func = func;
 	this->time = time;
 	this->ival = ival;
@@ -354,6 +364,8 @@ void jm_Scheduler::start(voidfuncptr_t func, timestamp_t time, timestamp_t ival)
 	this->started = true;
 	this->stopping = false;
 	this->yielded = false;
+
+	return true; // started
 }
 
 // stop coroutine, current or scheduled, remove from chain
